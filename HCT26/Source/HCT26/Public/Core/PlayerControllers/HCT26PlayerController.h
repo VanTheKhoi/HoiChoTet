@@ -7,6 +7,8 @@
 #include "InputActionValue.h"
 #include "HCT26PlayerController.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogHCT, Log, All); // Declare log category
+
 /**
  * 
  */
@@ -33,7 +35,7 @@ protected:
 	UInputAction* IA_Movement;
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawns")
-	TArray<APawn*> GetUnpossessedPawns();
+	TArray<APawn*> GetAllPawnsInScene();
 	
 	void SwitchAction(const FInputActionValue& Value);
 	void MoveAction(const FInputActionValue& Value);

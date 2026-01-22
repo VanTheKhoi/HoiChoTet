@@ -8,7 +8,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/Pawn.h"
-#include "GameFramework/PawnMovementComponent.h"
+
+DEFINE_LOG_CATEGORY(LogHCT); // Define log category
 
 void AHCT26PlayerController::BeginPlay()
 {
@@ -43,7 +44,7 @@ void AHCT26PlayerController::SetupInputComponent()
 	}
 }
 
-TArray<APawn*> AHCT26PlayerController::GetUnpossessedPawns()
+TArray<APawn*> AHCT26PlayerController::GetAllPawnsInScene()
 {
 	TArray<APawn*> UnpossessedPawns;
     
@@ -68,7 +69,7 @@ void AHCT26PlayerController::SwitchAction(const FInputActionValue& Value)
 	
 	// Possess logic
 	// Get UnPossesPawn
-	TArray<APawn*> UnpossessedPawns = GetUnpossessedPawns();
+	TArray<APawn*> AllPawns = GetAllPawnsInScene();
 	
 	APawn* CurrentPawn = GetPawn();
 	if (!CurrentPawn) return;
@@ -77,17 +78,17 @@ void AHCT26PlayerController::SwitchAction(const FInputActionValue& Value)
 	float NearestDist = FLT_MAX;
 	APawn* NearestPawn = nullptr;
 	
-	for (APawn* UnPossesPawn : UnpossessedPawns)
+	for (APawn* PawnInScene : AllPawns)
 	{
 		// Ignore if it's the current pawn
-		if (UnPossesPawn == CurrentPawn) continue;
+		if (PawnInScene == CurrentPawn) continue;
 		
 		// Get the nearest pawn
-		float Dist = FVector::Dist(CurrentPawn->GetActorLocation(), UnPossesPawn->GetActorLocation());
+		float Dist = FVector::Dist(CurrentPawn->GetActorLocation(), PawnInScene->GetActorLocation());
 		if (Dist < NearestDist)
 		{
 			NearestDist = Dist;
-			NearestPawn = UnPossesPawn;
+			NearestPawn = PawnInScene;
 		}
 	}
 	
@@ -96,6 +97,8 @@ void AHCT26PlayerController::SwitchAction(const FInputActionValue& Value)
 		//Possess Nearest Pawn
 		Possess(NearestPawn);
 	}
+	
+	UE_LOG(LogHCT, Log, TEXT("SWAP TO NEAREAST !!!!!!!! ")); // Log to output and add to LogHCT category
 	
 	// // Print to Screen - DEBUG
 	// if (GEngine)
