@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/Pawn.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogHCT); // Define log category
 
@@ -64,6 +65,12 @@ TArray<APawn*> AHCT26PlayerController::GetAllPawnsInScene()
 	return UnpossessedPawns;
 }
 
+FString AHCT26PlayerController::GetCurrentLevelName()
+{
+	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld(), true); 
+	return CurrentLevelName;
+}
+
 void AHCT26PlayerController::SwitchAction(const FInputActionValue& Value)
 {
 	
@@ -98,22 +105,15 @@ void AHCT26PlayerController::SwitchAction(const FInputActionValue& Value)
 		Possess(NearestPawn);
 	}
 	
-	UE_LOG(LogHCT, Log, TEXT("SWAP TO NEAREAST !!!!!!!! ")); // Log to output and add to LogHCT category
-	
-	// // Print to Screen - DEBUG
-	// if (GEngine)
-	// {
-	// 	GEngine->AddOnScreenDebugMessage(
-	// 		-1,                  // Key
-	// 		5,     // Display Time
-	// 		FColor(0, 255, 0),        // Color
-	// 		TEXT("SWITCH START !!!")     // Message (FString is implicitly converted)
-	// 	);
-	// }
+	UE_LOG(LogHCT, Log, TEXT("Swap to nearest !!!!"));
 }
 
 void AHCT26PlayerController::MoveAction(const FInputActionValue& Value)
 {
+	FString CurrentLevelName = GetCurrentLevelName();
+	UE_LOG(LogHCT, Log, TEXT("Current level: %s"), *CurrentLevelName);
+	if (CurrentLevelName == "WelcomeLevel") return;
+	
 	// Implement move logic here
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	APawn* ControlledPawn = GetPawn(); // Get Default Pawn
