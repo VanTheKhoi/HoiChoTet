@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogHCT); // Define log category
@@ -35,34 +36,36 @@ void AHCT26PlayerController::SetupInputComponent()
 		// Bind the switch action
 		if (IA_SwitchPawn)
 		{
-			EnhancedInputComponent->BindAction(IA_SwitchPawn, ETriggerEvent::Triggered, this, &AHCT26PlayerController::SwitchAction);
+			EnhancedInputComponent->BindAction(IA_SwitchPawn, ETriggerEvent::Triggered, this, &AHCT26PlayerController::SwitchToNearestPawn);
 		}
 		
 		// Bind the movement action
 		if (IA_Movement){
-			EnhancedInputComponent->BindAction(IA_Movement, ETriggerEvent::Triggered, this, &AHCT26PlayerController::MoveAction);
+			EnhancedInputComponent->BindAction(IA_Movement, ETriggerEvent::Triggered, this, &AHCT26PlayerController::MoveInWorld);
 		}
 	}
 }
 
 TArray<APawn*> AHCT26PlayerController::GetAllPawnsInScene()
 {
-	TArray<APawn*> UnpossessedPawns;
+	TArray<APawn*> AllPawnsInWorld;
     
 	// Iterate through all pawns in the world
 	for (TActorIterator<APawn> It(GetWorld()); It; ++It)
 	{
 		APawn* IterPawn = *It;
 
-		AController* PawnController = IterPawn->GetController();
-		FString PawnName = IterPawn->GetName();
+		// AController* PawnController = IterPawn->GetController();
+		// FString PawnName = IterPawn->GetName();
 		
 		// if (PawnController && PawnController->IsA<APlayerController>()) continue;
 		// Only add truly unpossessed pawns
-		UnpossessedPawns.Add(IterPawn);
+		AllPawnsInWorld.Add(IterPawn);
 	}
 	
-	return UnpossessedPawns;
+	UE_LOG(LogHCT, Log, TEXT("Total Pawns in World: %d"), AllPawnsInWorld.Num());
+	
+	return AllPawnsInWorld;
 }
 
 FString AHCT26PlayerController::GetCurrentLevelName()
@@ -71,15 +74,31 @@ FString AHCT26PlayerController::GetCurrentLevelName()
 	return CurrentLevelName;
 }
 
-void AHCT26PlayerController::SwitchAction(const FInputActionValue& Value)
+void AHCT26PlayerController::SwitchToNearestPawn(const FInputActionValue& Value)
 {
 	
 	// Possess logic
 	// Get UnPossesPawn
 	TArray<APawn*> AllPawns = GetAllPawnsInScene();
-	
+
 	APawn* CurrentPawn = GetPawn();
-	if (!CurrentPawn) return;
+	FVector SearchLocation = FVector::ZeroVector;
+
+	if (CurrentPawn)
+	{
+		SearchLocation = CurrentPawn->GetActorLocation();
+	}
+	else
+	{
+		// Try to find a PlayerStart if no pawn is possessed
+		AActor* FoundPlayerStart = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerStart::StaticClass());
+		if (FoundPlayerStart)
+		{
+			SearchLocation = FoundPlayerStart->GetActorLocation();
+			UE_LOG(LogHCT, Log, TEXT("Found PlayerStart at location: %s"), *SearchLocation.ToString());
+		}
+		// Else it remains FVector::ZeroVector (World Origin)
+	}
 	
 	// Find nearest free pawn
 	float NearestDist = FLT_MAX;
@@ -88,16 +107,18 @@ void AHCT26PlayerController::SwitchAction(const FInputActionValue& Value)
 	for (APawn* PawnInScene : AllPawns)
 	{
 		// Ignore if it's the current pawn
-		if (PawnInScene == CurrentPawn) continue;
+		if (CurrentPawn && PawnInScene == CurrentPawn) continue;
 		
 		// Get the nearest pawn
-		float Dist = FVector::Dist(CurrentPawn->GetActorLocation(), PawnInScene->GetActorLocation());
+		float Dist = FVector::Dist(SearchLocation, PawnInScene->GetActorLocation());
 		if (Dist < NearestDist)
 		{
 			NearestDist = Dist;
 			NearestPawn = PawnInScene;
 		}
 	}
+	
+	UE_LOG(LogHCT, Log, TEXT("Nearest Pawn: %s at distance: %f"), NearestPawn ? *NearestPawn->GetName() : TEXT("None"), NearestDist);
 	
 	if (NearestPawn)
 	{
@@ -108,11 +129,11 @@ void AHCT26PlayerController::SwitchAction(const FInputActionValue& Value)
 	UE_LOG(LogHCT, Log, TEXT("Swap to nearest !!!!"));
 }
 
-void AHCT26PlayerController::MoveAction(const FInputActionValue& Value)
+void AHCT26PlayerController::MoveInWorld(const FInputActionValue& Value)
 {
-	FString CurrentLevelName = GetCurrentLevelName();
-	UE_LOG(LogHCT, Log, TEXT("Current level: %s"), *CurrentLevelName);
-	if (CurrentLevelName == "WelcomeLevel") return;
+	// FString CurrentLevelName = GetCurrentLevelName();
+	// UE_LOG(LogHCT, Log, TEXT("Current level: %s"), *CurrentLevelName);
+	// if (CurrentLevelName == "WelcomeLevel") return;
 	
 	// Implement move logic here
 	FVector2D MovementVector = Value.Get<FVector2D>();
@@ -132,4 +153,3 @@ void AHCT26PlayerController::MoveAction(const FInputActionValue& Value)
 		ControlledPawn->AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
-
