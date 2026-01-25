@@ -88,17 +88,19 @@ void AHCT26PlayerController::DoSwitch()
 			SearchLocation = FoundPlayerStart->GetActorLocation();
 			UE_LOG(LogHCT, Log, TEXT("Found PlayerStart at location: %s"), *SearchLocation.ToString());
 		}
-		// Else it remains FVector::ZeroVector (World Origin)
 	}
 	
 	// Find nearest free pawn
-	float NearestDist = FLT_MAX;
+	float NearestDist = 100.0;
 	APawn* NearestPawn = nullptr;
 	
 	for (APawn* PawnInScene : AllPawns)
 	{
 		// Ignore if it's the current pawn
 		if (CurrentPawn && PawnInScene == CurrentPawn) continue;
+		
+		// Ignore if pawn has tag "Characters.CanPosses" missing
+		if (!PawnInScene->Tags.Contains(FName("Characters.CanPosses"))) continue;
 		
 		// Get the nearest pawn
 		float Dist = FVector::Dist(SearchLocation, PawnInScene->GetActorLocation());
@@ -124,19 +126,16 @@ void AHCT26PlayerController::SwitchToNearestPawn(const FInputActionValue& Value)
 	DoSwitch();
 }
 
+// TODO UnPosses 
+
 void AHCT26PlayerController::MoveInWorld(const FInputActionValue& Value)
 {
-	// FString CurrentLevelName = GetCurrentLevelName();
-	// UE_LOG(LogHCT, Log, TEXT("Current level: %s"), *CurrentLevelName);
-	// if (CurrentLevelName == "WelcomeLevel") return;
-	
 	// Implement move logic here
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	APawn* ControlledPawn = GetPawn(); // Get Default Pawn
 	
 	if (ControlledPawn)
 	{
-		// UE_LOG(LogTemp, Log, TEXT("Move Action Triggered NEW NEW"));
 		const FRotator Rotation = ControlledPawn->GetActorRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 		
