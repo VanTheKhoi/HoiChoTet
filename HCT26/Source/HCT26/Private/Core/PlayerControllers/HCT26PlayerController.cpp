@@ -25,6 +25,11 @@ void AHCT26PlayerController::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+	
+	if (!GetPawn())
+	{
+		DoSwitch();
+	}
 }
 
 void AHCT26PlayerController::SetupInputComponent()
@@ -74,9 +79,8 @@ FString AHCT26PlayerController::GetCurrentLevelName()
 	return CurrentLevelName;
 }
 
-void AHCT26PlayerController::SwitchToNearestPawn(const FInputActionValue& Value)
+void AHCT26PlayerController::DoSwitch()
 {
-	
 	// Possess logic
 	// Get UnPossesPawn
 	TArray<APawn*> AllPawns = GetAllPawnsInScene();
@@ -127,6 +131,11 @@ void AHCT26PlayerController::SwitchToNearestPawn(const FInputActionValue& Value)
 	}
 	
 	UE_LOG(LogHCT, Log, TEXT("Swap to nearest !!!!"));
+}
+
+void AHCT26PlayerController::SwitchToNearestPawn(const FInputActionValue& Value)
+{
+	DoSwitch();
 }
 
 void AHCT26PlayerController::MoveInWorld(const FInputActionValue& Value)

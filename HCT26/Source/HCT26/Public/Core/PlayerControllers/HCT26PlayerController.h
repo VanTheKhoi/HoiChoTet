@@ -39,7 +39,8 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawns")
 	FString GetCurrentLevelName();
-	
+	void DoSwitch();
+
 	void SwitchToNearestPawn(const FInputActionValue& Value);
 	void MoveInWorld(const FInputActionValue& Value);
 };
