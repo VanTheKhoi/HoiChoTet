@@ -25,11 +25,6 @@ void AHCT26PlayerController::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-	
-	if (!GetPawn())
-	{
-		DoSwitch();
-	}
 }
 
 void AHCT26PlayerController::SetupInputComponent()
@@ -59,17 +54,10 @@ TArray<APawn*> AHCT26PlayerController::GetAllPawnsInScene()
 	for (TActorIterator<APawn> It(GetWorld()); It; ++It)
 	{
 		APawn* IterPawn = *It;
-
-		// AController* PawnController = IterPawn->GetController();
-		// FString PawnName = IterPawn->GetName();
-		
-		// if (PawnController && PawnController->IsA<APlayerController>()) continue;
-		// Only add truly unpossessed pawns
 		AllPawnsInWorld.Add(IterPawn);
 	}
 	
 	UE_LOG(LogHCT, Log, TEXT("Total Pawns in World: %d"), AllPawnsInWorld.Num());
-	
 	return AllPawnsInWorld;
 }
 
@@ -82,7 +70,6 @@ FString AHCT26PlayerController::GetCurrentLevelName()
 void AHCT26PlayerController::DoSwitch()
 {
 	// Possess logic
-	// Get UnPossesPawn
 	TArray<APawn*> AllPawns = GetAllPawnsInScene();
 
 	APawn* CurrentPawn = GetPawn();
@@ -130,7 +117,6 @@ void AHCT26PlayerController::DoSwitch()
 		Possess(NearestPawn);
 	}
 	
-	UE_LOG(LogHCT, Log, TEXT("Swap to nearest !!!!"));
 }
 
 void AHCT26PlayerController::SwitchToNearestPawn(const FInputActionValue& Value)
