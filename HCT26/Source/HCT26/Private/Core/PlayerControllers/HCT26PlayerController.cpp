@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Core/PlayerControllers/HCT26PlayerController.h"
+#include "Characters/NPCs/HCT26PawnOne.h"
+#include "Core/GamePlayTags/HCT26GamePlayTags.h"
 
 #include "EngineUtils.h"
 #include "Engine/Engine.h"
@@ -67,6 +69,15 @@ FString AHCT26PlayerController::GetCurrentLevelName()
 	return CurrentLevelName;
 }
 
+bool AHCT26PlayerController::PawnHasCanPossessTag(APawn* PawnInScene)
+{
+	AHCT26PawnOne* MyPawn = Cast<AHCT26PawnOne>(PawnInScene);
+	if (!MyPawn) return false;
+	if (MyPawn->TagContainer.IsEmpty()) return false;
+	if (MyPawn->TagContainer.HasTag(HCT26GameplayTags::TAG_Character_CanPossess)) return true;
+	return false;
+}
+
 void AHCT26PlayerController::DoSwitch()
 {
 	// Possess logic
@@ -99,8 +110,9 @@ void AHCT26PlayerController::DoSwitch()
 		// Ignore if it's the current pawn
 		if (CurrentPawn && PawnInScene == CurrentPawn) continue;
 		
-		// Ignore if pawn has tag "Characters.CanPosses" missing
-		if (!PawnInScene->Tags.Contains(FName("Characters.CanPosses"))) continue;
+		// Check if pawn has Character.CanPossess tag
+		// if (!PawnInScene->Tags.Contains(FName("Character.CanPossess"))) continue;
+		if (!PawnHasCanPossessTag(PawnInScene)) continue;
 		
 		// Get the nearest pawn
 		float Dist = FVector::Dist(SearchLocation, PawnInScene->GetActorLocation());

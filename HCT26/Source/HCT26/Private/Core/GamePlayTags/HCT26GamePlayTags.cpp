@@ -3,4 +3,7 @@
 
 #include "Core/GamePlayTags/HCT26GamePlayTags.h"
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Character_CanPossess, "Character.CanPossess");
+namespace HCT26GameplayTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(TAG_Character_CanPossess, "Character.CanPossess");
+}

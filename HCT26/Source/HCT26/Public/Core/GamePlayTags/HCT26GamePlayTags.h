@@ -4,4 +4,7 @@
 
 #include "NativeGameplayTags.h"
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Character_CanPossess);
+namespace HCT26GameplayTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Character_CanPossess);
+}

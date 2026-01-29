@@ -40,6 +40,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Pawns")
 	FString GetCurrentLevelName();
 	
+	UFUNCTION(BlueprintCallable, Category = "Pawns")
+	bool PawnHasCanPossessTag(APawn* PawnInScene);
+	
 	void DoSwitch();
 	void SwitchToNearestPawn(const FInputActionValue& Value);
 	void MoveInWorld(const FInputActionValue& Value);
