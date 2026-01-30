@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "Core/GameLogs/GameLogsBase.h"
 #include "InputActionValue.h"
 #include "HCT26PlayerController.generated.h"
 
@@ -41,6 +40,9 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawns")
 	bool PawnHasCanPossessTag(APawn* PawnInScene);
+	
+	UFUNCTION(BlueprintCallable, Category = "Pawns")
+	bool PawnImplementsCanPossess(APawn* PawnInScene);
 	
 	void DoSwitch();
 	void SwitchToNearestPawn(const FInputActionValue& Value);

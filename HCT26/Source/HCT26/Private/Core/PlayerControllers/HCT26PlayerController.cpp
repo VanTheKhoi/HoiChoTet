@@ -3,6 +3,8 @@
 #include "Core/PlayerControllers/HCT26PlayerController.h"
 #include "Characters/NPCs/HCT26PawnOne.h"
 #include "Core/GamePlayTags/HCT26GamePlayTags.h"
+#include "Core/GameLogs/GameLogsBase.h"
+#include "Core/Interfaces/ReactToTriggerInterface.h"
 
 #include "EngineUtils.h"
 #include "Engine/Engine.h"
@@ -77,6 +79,16 @@ bool AHCT26PlayerController::PawnHasCanPossessTag(APawn* PawnInScene)
 	return false;
 }
 
+bool AHCT26PlayerController::PawnImplementsCanPossess(APawn* PawnInScene)
+{
+	if (!PawnInScene->Implements<UReactToTriggerInterface>()) return false;
+	
+	IReactToTriggerInterface* PossessInterface = Cast<IReactToTriggerInterface>(PawnInScene);
+	if (!PossessInterface) return false;
+	
+	return PossessInterface->CanPossess(); 
+}
+
 void AHCT26PlayerController::DoSwitch()
 {
 	// Possess logic
@@ -109,8 +121,8 @@ void AHCT26PlayerController::DoSwitch()
 		// Ignore if it's the current pawn
 		if (CurrentPawn && PawnInScene == CurrentPawn) continue;
 		
-		// Check if pawn has Character.CanPossess tag
-		if (!PawnHasCanPossessTag(PawnInScene)) continue;
+		// Check if pawn has Character.CanPossess tag and implements CanPossess
+		if (!PawnHasCanPossessTag(PawnInScene) && !PawnImplementsCanPossess(PawnInScene)) continue;
 		
 		// Get the nearest pawn
 		float Dist = FVector::Dist(SearchLocation, PawnInScene->GetActorLocation());

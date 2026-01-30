@@ -32,4 +32,3 @@ void AHCT26PawnOne::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
-
