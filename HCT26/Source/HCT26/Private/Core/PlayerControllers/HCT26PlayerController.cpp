@@ -13,7 +13,6 @@
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
-DEFINE_LOG_CATEGORY(LogHCT); // Define log category
 
 void AHCT26PlayerController::BeginPlay()
 {
@@ -59,7 +58,7 @@ TArray<APawn*> AHCT26PlayerController::GetAllPawnsInScene()
 		AllPawnsInWorld.Add(IterPawn);
 	}
 	
-	UE_LOG(LogHCT, Log, TEXT("Total Pawns in World: %d"), AllPawnsInWorld.Num());
+	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Total Pawns in World: %d"), AllPawnsInWorld.Num());
 	return AllPawnsInWorld;
 }
 
@@ -97,7 +96,7 @@ void AHCT26PlayerController::DoSwitch()
 		if (FoundPlayerStart)
 		{
 			SearchLocation = FoundPlayerStart->GetActorLocation();
-			UE_LOG(LogHCT, Log, TEXT("Found PlayerStart at location: %s"), *SearchLocation.ToString());
+			UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Found PlayerStart at location: %s"), *SearchLocation.ToString());
 		}
 	}
 	
@@ -111,7 +110,6 @@ void AHCT26PlayerController::DoSwitch()
 		if (CurrentPawn && PawnInScene == CurrentPawn) continue;
 		
 		// Check if pawn has Character.CanPossess tag
-		// if (!PawnInScene->Tags.Contains(FName("Character.CanPossess"))) continue;
 		if (!PawnHasCanPossessTag(PawnInScene)) continue;
 		
 		// Get the nearest pawn
@@ -123,7 +121,7 @@ void AHCT26PlayerController::DoSwitch()
 		}
 	}
 	
-	UE_LOG(LogHCT, Log, TEXT("Nearest Pawn: %s at distance: %f"), NearestPawn ? *NearestPawn->GetName() : TEXT("None"), NearestDist);
+	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Nearest Pawn: %s at distance: %f"), NearestPawn ? *NearestPawn->GetName() : TEXT("None"), NearestDist);
 	
 	if (NearestPawn)
 	{

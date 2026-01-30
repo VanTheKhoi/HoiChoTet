@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Core/GameLogs/GameLogsBase.h"
 #include "InputActionValue.h"
 #include "HCT26PlayerController.generated.h"
-
-DECLARE_LOG_CATEGORY_EXTERN(LogHCT, Log, All); // Declare log category
 
 /**
  * 
