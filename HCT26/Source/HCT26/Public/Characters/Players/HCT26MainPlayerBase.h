@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "GameFramework/FloatingPawnMovement.h"
+#include "Components/SphereComponent.h"
 #include "HCT26MainPlayerBase.generated.h"
+
 
 UCLASS()
 class HCT26_API AHCT26MainPlayerBase : public APawn
@@ -18,6 +21,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UFloatingPawnMovement* MovementComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USphereComponent* CollisionComponent;
 
 public:
 	// Called every frame
