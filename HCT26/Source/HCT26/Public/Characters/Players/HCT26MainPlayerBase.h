@@ -26,6 +26,9 @@ protected:
 	UFloatingPawnMovement* MovementComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USceneComponent* SceneRoot;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* CollisionComponent;
 
 public:

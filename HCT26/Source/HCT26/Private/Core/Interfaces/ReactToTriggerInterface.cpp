@@ -9,3 +9,5 @@ bool IReactToTriggerInterface::CanPossess()
 {
 	return true;
 }
+
+void IReactToTriggerInterface::TalkToPlayer(){}
