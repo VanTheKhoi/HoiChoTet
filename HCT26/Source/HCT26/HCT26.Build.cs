@@ -14,7 +14,8 @@ public class HCT26 : ModuleRules
 															"InputCore", 
 															"EnhancedInput", 
 															"UMG",
-															"GameplayTags"
+															"GameplayTags",
+															"Niagara"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
