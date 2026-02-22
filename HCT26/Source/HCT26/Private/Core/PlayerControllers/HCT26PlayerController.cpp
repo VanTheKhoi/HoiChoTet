@@ -158,6 +158,9 @@ void AHCT26PlayerController::MoveInWorld(const FInputActionValue& Value)
 	
 	if (ControlledPawn)
 	{
+		// Log Pawn Name
+		// UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Pawn Name : %s"), *ControlledPawn->GetName());
+
 		const FRotator Rotation = ControlledPawn->GetActorRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 		
