@@ -106,6 +106,7 @@ void AHCT26AirPlaneShooterPlayerBase::OnHit(UPrimitiveComponent* HitComp, AActor
 
 void AHCT26AirPlaneShooterPlayerBase::Shoot(const FInputActionValue& Value)
 {
+	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Shoot Action Triggered"));
 }
 
 void AHCT26AirPlaneShooterPlayerBase::Movement(const FInputActionValue& Value)

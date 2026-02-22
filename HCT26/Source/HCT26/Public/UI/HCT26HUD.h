@@ -23,7 +23,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<class UUserWidget> WidgetClass;
 	
-private:
+public:
 	UPROPERTY()
 	UUserWidget* MainMenuWidget;
 };

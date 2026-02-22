@@ -1,9 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MiniGame/HCT26AirPlaneShooterController.h"
+
+#include "Blueprint/UserWidget.h"
 #include "Core/GameLogs/GameLogsBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "MiniGame/HCT26AirPlaneShooterPlayerBase.h"
+#include "UI/HCT26HUD.h"
 
 
 // Sets default values
@@ -115,6 +117,13 @@ void AHCT26AirPlaneShooterController::SpawnPlayer()
 												3.0f,
 												true
 												);  
+		
+		// Set HUD visibility to false
+		AHCT26HUD* HCTHUD = Cast<AHCT26HUD>(PlayerController->GetHUD());
+		if (HCTHUD)
+		{
+			HCTHUD->MainMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 	else
 	{
