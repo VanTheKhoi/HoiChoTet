@@ -44,6 +44,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	float MoveSpeed = 100.0f;
 	
+	// Reference to bullet class to spawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Spawn")
+	TSubclassOf<AActor> BulletClass;
+	
 	// Scene Root
 	UPROPERTY()
 	TObjectPtr<USceneComponent> SceneRoot;

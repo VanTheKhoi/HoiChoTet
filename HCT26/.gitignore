@@ -72,7 +72,4 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
-HCT26/.idea/.idea.HCT26.dir/.idea/copilot.data.migration.agent.xml
-HCT26/.idea/.idea.HCT26.dir/.idea/copilot.data.migration.ask.xml
-HCT26/.idea/.idea.HCT26.dir/.idea/copilot.data.migration.ask2agent.xml
-HCT26/.idea/.idea.HCT26.dir/.idea/copilot.data.migration.edit.xml
+*.xml

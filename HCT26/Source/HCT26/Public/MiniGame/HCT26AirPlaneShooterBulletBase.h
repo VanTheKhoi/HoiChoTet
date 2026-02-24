@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/SphereComponent.h"
 #include "HCT26AirPlaneShooterBulletBase.generated.h"
 
 UCLASS()
@@ -22,4 +24,30 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
+	// Bullet Mesh
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UStaticMeshComponent> BulletMesh;
+	
+	// Scene Root
+	UPROPERTY()
+	TObjectPtr<USceneComponent> SceneRoot;
+	
+	// Sphere Collision
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<USphereComponent> CollisionComponent;
+	
+	// Project tile movement
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
+	
+	// Bullet speed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Setup")
+	float BulletSpeed = 1000.0f;
+	
+	// Function to handle hit events
+	UFUNCTION()
+	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
+			   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+			   const FHitResult& Hit);
 };

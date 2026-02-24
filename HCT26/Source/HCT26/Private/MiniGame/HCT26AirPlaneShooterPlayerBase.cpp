@@ -107,6 +107,38 @@ void AHCT26AirPlaneShooterPlayerBase::OnHit(UPrimitiveComponent* HitComp, AActor
 void AHCT26AirPlaneShooterPlayerBase::Shoot(const FInputActionValue& Value)
 {
 	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Shoot Action Triggered"));
+	
+	if (BulletClass)
+	{
+		// Spawn bullet at the location of the player
+		FVector SpawnLocation = GetActorLocation();
+		FRotator SpawnRotation = GetActorRotation();
+	
+		// Spawn Bullet
+		FActorSpawnParameters SpawnParams;
+	
+		// Set the spawn collision handling to always spawn, even if there are collisions
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		
+		AActor* SpawnedPlayer = GetWorld()->SpawnActor<AActor>(
+								BulletClass,
+								SpawnLocation,
+								SpawnRotation,
+								SpawnParams);	
+		
+		// Move the bullet to Z + 50 to prevent collision with the player		
+		if (SpawnedPlayer)
+		{
+			FVector FinalLocation = SpawnLocation + FVector(0, 0, 50);
+			SpawnedPlayer->SetActorLocation(FinalLocation);
+		}
+		
+		// Detroy the bullet after 3 seconds to prevent clutter
+		// if (SpawnedPlayer)
+		// {
+		// 	SpawnedPlayer->SetLifeSpan(1.0f);
+		// }
+	}
 }
 
 void AHCT26AirPlaneShooterPlayerBase::Movement(const FInputActionValue& Value)
