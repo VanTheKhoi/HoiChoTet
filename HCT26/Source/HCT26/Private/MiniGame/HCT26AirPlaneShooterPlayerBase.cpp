@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Core/GameLogs/GameLogsBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
 
 // Sets default values
@@ -14,6 +15,9 @@ AHCT26AirPlaneShooterPlayerBase::AHCT26AirPlaneShooterPlayerBase()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
+	// Setup default values
+	bSpawnExplosionEffect = false;
+	
 	// Create root scene component
 	SceneRoot = CreateDefaultSubobject<USceneComponent>("SceneRoot");
 	SetRootComponent(SceneRoot);
@@ -21,6 +25,10 @@ AHCT26AirPlaneShooterPlayerBase::AHCT26AirPlaneShooterPlayerBase()
 	// Create, parent, and configure airplane mesh component
 	AirPlaneMesh = CreateDefaultSubobject<UStaticMeshComponent>("AirPlaneMesh");
 	AirPlaneMesh->SetupAttachment(SceneRoot);
+	
+	// Create Cascade particle system component for explosion effect
+	AirPlaneParticleSystem = CreateDefaultSubobject<UParticleSystemComponent>("ExplosionEffect");
+	AirPlaneParticleSystem->SetupAttachment(AirPlaneMesh);
 	
 	// Create, parent, and configure sphere collision component
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>("CollisionSphere");
@@ -68,13 +76,53 @@ void AHCT26AirPlaneShooterPlayerBase::BeginPlay()
 void AHCT26AirPlaneShooterPlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	// Health check - if health is 0 or below, destroy the player
+	if (Health <= 0.0f && !bSpawnExplosionEffect)
+	{
+		if (GEngine)
+		{
+			// Basic message
+			GEngine->AddOnScreenDebugMessage(
+				-1,                    // Key (-1 = always add new message)
+				5.0f,                  // Display time in seconds
+				FColor::Red,           // Text color			
+				TEXT("Player Destroyed !!!")
+			);
+		}
+		
+		// Spawn explosion particle effect at the player's location
+		if (ExplosionParticleSystem)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), 
+							ExplosionParticleSystem, 
+							GetActorLocation(), 
+							GetActorRotation()
+							);
+			
+			// Hide the player mesh to simulate destruction
+			AirPlaneMesh->SetVisibility(false);
+			CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			AirPlaneParticleSystem->SetVisibility(false);
+			
+			// Remove all input bindings to prevent further player actions
+			if (EnhancedInputComponent)
+			{
+				EnhancedInputComponent->ClearActionEventBindings();
+			}
+		}
+		bSpawnExplosionEffect = true;
+		// Destroy(true);
+	}
 }
 
 // Called to bind functionality to input
 void AHCT26AirPlaneShooterPlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	
+	if (EnhancedInputComponent)
 	{
 		// Bind the switch action
 		if (IA_AirPlaneShooterPlayerShoot)

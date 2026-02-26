@@ -23,6 +23,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UPROPERTY()
+	TObjectPtr<UEnhancedInputComponent> EnhancedInputComponent;
 
 public:
 	// Called every frame
@@ -41,12 +44,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	TObjectPtr<UInputAction> IA_AirPlaneShooterPlayerMovement;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	// Player health
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Health")
+	float Health = 100.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Movement")
 	float MoveSpeed = 100.0f;
 	
 	// Reference to bullet class to spawn
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Spawn")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Bullet")
 	TSubclassOf<AActor> BulletClass;
+	
+	// Exploision Particle System
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Effects")
+	TObjectPtr<UParticleSystem> ExplosionParticleSystem;
+	
+	// Is Spawn Explosion Effect
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Effects")
+	bool bSpawnExplosionEffect;
 	
 	// Scene Root
 	UPROPERTY()
@@ -55,6 +70,10 @@ public:
 	// Airplane Mesh
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> AirPlaneMesh;
+	
+	// Particle system
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)	
+	TObjectPtr<UParticleSystemComponent> AirPlaneParticleSystem;
 	
 	// Sphere Collision
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
