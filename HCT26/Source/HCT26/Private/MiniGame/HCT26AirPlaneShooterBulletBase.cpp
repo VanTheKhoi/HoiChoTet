@@ -2,6 +2,7 @@
 
 
 #include "MiniGame/HCT26AirPlaneShooterBulletBase.h"
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -31,13 +32,11 @@ AHCT26AirPlaneShooterBulletBase::AHCT26AirPlaneShooterBulletBase()
 	
 	// Create and configure projectile movement component
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-	ProjectileMovementComponent->UpdatedComponent = CollisionComponent;
-	ProjectileMovementComponent->InitialSpeed = 5000.f;
-	ProjectileMovementComponent->MaxSpeed = 5000.f;
-	ProjectileMovementComponent->Velocity = FVector(0, 0, ProjectileMovementComponent->InitialSpeed);
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->bShouldBounce = true;
-	ProjectileMovementComponent->ProjectileGravityScale = 0.5f;
+	ProjectileMovementComponent->InitialSpeed = BulletSpeed;
+	ProjectileMovementComponent->MaxSpeed = BulletSpeed;
+	ProjectileMovementComponent->Velocity = FVector(0, 0, BulletSpeed);
+	ProjectileMovementComponent->bShouldBounce = false;
+	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 }
 
 // Called when the game starts or when spawned
@@ -45,6 +44,16 @@ void AHCT26AirPlaneShooterBulletBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// Set a timer to destroy the bullet after DestroyTime seconds
+	GetWorldTimerManager().SetTimer(
+		DestroyTimerHandle,
+		[this]()
+		{
+			Destroy(true);
+		},
+		DestroyTime,
+		false
+	);
 }
 
 // Called every frame

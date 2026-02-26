@@ -113,6 +113,8 @@ void AHCT26AirPlaneShooterPlayerBase::Shoot(const FInputActionValue& Value)
 		// Spawn bullet at the location of the player
 		FVector SpawnLocation = GetActorLocation();
 		FRotator SpawnRotation = GetActorRotation();
+		
+		FVector FinalLocation = SpawnLocation + FVector(0, 0, 1);
 	
 		// Spawn Bullet
 		FActorSpawnParameters SpawnParams;
@@ -122,22 +124,9 @@ void AHCT26AirPlaneShooterPlayerBase::Shoot(const FInputActionValue& Value)
 		
 		AActor* SpawnedPlayer = GetWorld()->SpawnActor<AActor>(
 								BulletClass,
-								SpawnLocation,
+								FinalLocation,
 								SpawnRotation,
 								SpawnParams);	
-		
-		// Move the bullet to Z + 50 to prevent collision with the player		
-		if (SpawnedPlayer)
-		{
-			FVector FinalLocation = SpawnLocation + FVector(0, 0, 50);
-			SpawnedPlayer->SetActorLocation(FinalLocation);
-		}
-		
-		// Detroy the bullet after 3 seconds to prevent clutter
-		// if (SpawnedPlayer)
-		// {
-		// 	SpawnedPlayer->SetLifeSpan(1.0f);
-		// }
 	}
 }
 

@@ -43,7 +43,14 @@ public:
 	
 	// Bullet speed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Setup")
-	float BulletSpeed = 1000.0f;
+	float BulletSpeed = 500.0f;
+	
+	// Bullet destroy time
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Setup")
+	float DestroyTime = 1.5f;
+	
+	UPROPERTY()
+	FTimerHandle DestroyTimerHandle;
 	
 	// Function to handle hit events
 	UFUNCTION()
