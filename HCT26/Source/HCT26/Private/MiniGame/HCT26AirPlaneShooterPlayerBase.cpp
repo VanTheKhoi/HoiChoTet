@@ -5,7 +5,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Core/GameLogs/GameLogsBase.h"
+#include "Core/GamePlayTags/HCT26GamePlayTags.h"
 #include "Kismet/GameplayStatics.h"
+#include "MiniGame/HCT26AirPlaneShooterBulletBase.h"
 #include "Particles/ParticleSystemComponent.h"
 
 
@@ -17,6 +19,9 @@ AHCT26AirPlaneShooterPlayerBase::AHCT26AirPlaneShooterPlayerBase()
 	
 	// Setup default values
 	bSpawnExplosionEffect = false;
+	bIsHit = false;
+	DecreasedHealth = 20.0f;
+	OriginalColor = FLinearColor(0.0f, 0.2f, 1.0f, 0.1f);
 	
 	// Create root scene component
 	SceneRoot = CreateDefaultSubobject<USceneComponent>("SceneRoot");
@@ -114,6 +119,21 @@ void AHCT26AirPlaneShooterPlayerBase::Tick(float DeltaTime)
 		bSpawnExplosionEffect = true;
 		// Destroy(true);
 	}
+	
+	// Check if player was hit and apply damage
+	if (bIsHit)
+	{
+		Damaged();
+		
+		// Reset hit state after applying damage
+		bIsHit = false;
+	}
+	
+	// If health is below 40, change the original color to red for the damage effect
+	if (Health < 40)
+	{
+		OriginalColor = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	}
 }
 
 // Called to bind functionality to input
@@ -146,9 +166,25 @@ void AHCT26AirPlaneShooterPlayerBase::OnHit(UPrimitiveComponent* HitComp, AActor
 		GEngine->AddOnScreenDebugMessage(
 			-1,                    // Key (-1 = always add new message)
 			5.0f,                  // Display time in seconds
-			FColor::Green,         // Text color
+			FColor::Red,         // Text color
 			TEXT("Player Hit !!!")
 		);
+	}
+	
+	// Check if hit actor is a bullet and apply damage
+	if (OtherActor && OtherActor != this)
+	{
+		AHCT26AirPlaneShooterBulletBase* Bullet = Cast<AHCT26AirPlaneShooterBulletBase>(OtherActor);
+		
+		if (Bullet->TagContainer.HasTag(HCT26GameplayTags::TAG_Bullet))
+		{
+			// Apply damage to the player
+			DecreasedHealth = Bullet->Damage;
+			bIsHit = true;
+			
+			// Destroy the bullet after hit
+			Bullet->Destroy();
+		}
 	}
 }
 
@@ -209,5 +245,57 @@ void AHCT26AirPlaneShooterPlayerBase::Movement(const FInputActionValue& Value)
     
 	// Set new location
 	SetActorLocation(NewLocation);
+}
+
+void AHCT26AirPlaneShooterPlayerBase::CreateAndApplyDMI(FLinearColor Color, FName ParameterName)
+{
+	// Create a dynamic material instance for each material slot and set the specified parameter to the given color
+	int32 MaterialCount = AirPlaneMesh->GetNumMaterials();
+	
+	for (int32 i = 0; i < MaterialCount; i++)
+	{
+		// Get Material 
+		UMaterialInterface* Material = AirPlaneMesh->GetMaterial(i);
+		
+		// Check if it's a dynamic material instance
+		UMaterialInstanceDynamic* DynamicMaterial = Cast<UMaterialInstanceDynamic>(Material);
+		
+		if (!DynamicMaterial)
+		{
+			// If it's not a dynamic material instance, create one
+			DynamicMaterial = AirPlaneMesh->CreateAndSetMaterialInstanceDynamic(i);
+		}
+		
+		if (DynamicMaterial)
+		{
+			DynamicMaterial->SetVectorParameterValue(ParameterName, Color);
+		}
+	}
+}
+
+void AHCT26AirPlaneShooterPlayerBase::Damaged()
+{
+	// Apply damage to the player
+	Health -= DecreasedHealth;
+			
+	// Log the damage and remaining health
+	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player hit by bullet! Damage: %f, Remaining Health: %f"), DecreasedHealth, Health);
+			
+	// Change player color to red briefly to indicate hit
+	CreateAndApplyDMI(FLinearColor(1.0f, 0.0f, 0.0f, 1.0f), FName("Color1"));
+			
+	// Change color back to original after delay
+	GetWorldTimerManager().SetTimer
+	(
+		DelayTimerHandle,
+		[this]()
+		{
+			CreateAndApplyDMI( 
+				OriginalColor,
+				FName("Color1"));
+		},
+		0.3f,    // Delay in seconds
+		false    // Don't loop
+	);
 }
 

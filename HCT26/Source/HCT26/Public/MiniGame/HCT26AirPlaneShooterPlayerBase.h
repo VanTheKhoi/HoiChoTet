@@ -26,6 +26,15 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UEnhancedInputComponent> EnhancedInputComponent;
+	
+	UPROPERTY()
+	FTimerHandle DelayTimerHandle;
+	
+	UPROPERTY()
+	float DecreasedHealth;
+	
+	UPROPERTY()
+	FLinearColor OriginalColor;
 
 public:
 	// Called every frame
@@ -47,6 +56,9 @@ public:
 	// Player health
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Health")
 	float Health = 100.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Health")
+	bool bIsHit;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Movement")
 	float MoveSpeed = 100.0f;
@@ -90,4 +102,10 @@ public:
 	
 	UFUNCTION()
 	virtual void Movement(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void CreateAndApplyDMI(FLinearColor Color, FName ParameterName);
+	
+	UFUNCTION()
+	void Damaged();
 };
