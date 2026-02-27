@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "GameplayTagContainer.h"
 #include "HCT26AirPlaneShooterBulletBase.generated.h"
 
 UCLASS()
@@ -48,6 +49,14 @@ public:
 	// Bullet destroy time
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Setup")
 	float DestroyTime = 1.5f;
+	
+	// Bullet damage
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Setup")
+	float Damage = 20.0f;
+	
+	// Gameplay tags for the bullet
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Setup")
+	FGameplayTagContainer TagContainer;
 	
 	UPROPERTY()
 	FTimerHandle DestroyTimerHandle;

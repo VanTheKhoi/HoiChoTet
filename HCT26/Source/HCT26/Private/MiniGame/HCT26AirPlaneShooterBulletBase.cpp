@@ -2,6 +2,7 @@
 
 
 #include "MiniGame/HCT26AirPlaneShooterBulletBase.h"
+#include "Core/GamePlayTags/HCT26GamePlayTags.h"
 #include "TimerManager.h"
 
 
@@ -37,6 +38,10 @@ AHCT26AirPlaneShooterBulletBase::AHCT26AirPlaneShooterBulletBase()
 	ProjectileMovementComponent->Velocity = FVector(0, 0, BulletSpeed);
 	ProjectileMovementComponent->bShouldBounce = false;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
+	
+	// Add Tag
+	TagContainer.AddTag(HCT26GameplayTags::TAG_Bullet);
+	
 }
 
 // Called when the game starts or when spawned
