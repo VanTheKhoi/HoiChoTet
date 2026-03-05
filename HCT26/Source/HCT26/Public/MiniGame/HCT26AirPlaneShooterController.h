@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Actor.h"
-#include "Interaction/HCT26AirPlaneShooterButton.h"
 #include "HCT26AirPlaneShooterController.generated.h"
 
 UCLASS()
@@ -27,7 +26,13 @@ protected:
 	
 	// Player Pawn Class Reference
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
-	TSubclassOf<APawn> PlayerPawnClass;
+	TSubclassOf<APawn> PlayerSPawnClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
+	TSubclassOf<APawn> EnemySpawnClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Gameplay")
+	bool bIsCameraShaking;
 	
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -40,14 +45,19 @@ protected:
 	// Enemy Spawn Point
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> EnemySpawnPoint;
+	
+	UPROPERTY()
+	class AHCT26AirPlaneShooterPlayerBase* PlayerBase;
+	
+	UPROPERTY()
+	class AHCT26AirPlaneShooterButton* Broadcaster;
+	
+	UPROPERTY()
+	APlayerController* PlayerController;
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
-	// Reference to broadcaster
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Listener")
-	AHCT26AirPlaneShooterButton* Broadcaster;
 	
 	UFUNCTION()
 	void StartAirPlaneShooterGame(bool IsStartGame);
@@ -55,4 +65,12 @@ public:
 	// Spawn player function
 	UFUNCTION()
 	void SpawnPlayer();
+	
+	// Spawn enemy function
+	UFUNCTION()
+	void SpawnEnemy();
+	
+	// Camera shake function
+	UFUNCTION()
+	void CameraShake(bool IsPlayerDead);
 };

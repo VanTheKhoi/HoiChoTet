@@ -11,6 +11,8 @@
 class UInputAction;
 class UInputMappingContext;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSignaturePlayerDead, bool, IsPlayerDead);
+
 UCLASS()
 class HCT26_API AHCT26AirPlaneShooterPlayerBase : public APawn
 {
@@ -19,6 +21,9 @@ class HCT26_API AHCT26AirPlaneShooterPlayerBase : public APawn
 public:
 	// Sets default values for this pawn's properties
 	AHCT26AirPlaneShooterPlayerBase();
+	
+	UPROPERTY(BlueprintAssignable, Category=HoiChoTet)
+	FSignaturePlayerDead PlayerDead;
 
 protected:
 	// Called when the game starts or when spawned
@@ -108,4 +113,6 @@ public:
 	
 	UFUNCTION()
 	void Damaged();
+
 };
+

@@ -115,6 +115,9 @@ void AHCT26AirPlaneShooterPlayerBase::Tick(float DeltaTime)
 			{
 				EnhancedInputComponent->ClearActionEventBindings();
 			}
+			
+			// Broadcast player death event to notify the controller
+			PlayerDead.Broadcast(true);
 		}
 		bSpawnExplosionEffect = true;
 		// Destroy(true);

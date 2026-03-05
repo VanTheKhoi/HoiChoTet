@@ -1,6 +1,8 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MiniGame/HCT26AirPlaneShooterController.h"
+#include "MiniGame/HCT26AirPlaneShooterPlayerBase.h"
+#include "Interaction/HCT26AirPlaneShooterButton.h"
 
 #include "Blueprint/UserWidget.h"
 #include "Core/GameLogs/GameLogsBase.h"
@@ -13,6 +15,7 @@ AHCT26AirPlaneShooterController::AHCT26AirPlaneShooterController()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bIsCameraShaking = false;
 	
 	// Create root scene component
 	SceneRoot = CreateDefaultSubobject<USceneComponent>("SceneRoot");
@@ -47,31 +50,49 @@ void AHCT26AirPlaneShooterController::BeginPlay()
 	// Print DEBUG message to LOG
 	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Spawn Player"));
 	
+	// Get the player controller
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	
 	// Bind the StartAirPlaneShooterGame function to the StartOverlap event of the button
+	Broadcaster = Cast<AHCT26AirPlaneShooterButton>(Broadcaster);
 	if (Broadcaster)
 	{
 		Broadcaster->StartGame.AddDynamic(this, &AHCT26AirPlaneShooterController::StartAirPlaneShooterGame);
 	}
+	
 }
 
 // Called every frame
 void AHCT26AirPlaneShooterController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 {
+	// Call SpawnPlayer function
 	SpawnPlayer();
+	
+	// bind the dead event
+	PlayerBase = Cast<AHCT26AirPlaneShooterPlayerBase>(PlayerBase);
+	if (PlayerBase)
+	{
+		UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Base LOAD"));
+		PlayerBase->PlayerDead.AddDynamic(this, &AHCT26AirPlaneShooterController::CameraShake);
+	}else
+	{
+		UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Base NOTLOAD"));
+	}
+	
+	// Call SpawnEnemy function
+	SpawnEnemy();
 }
 
 void AHCT26AirPlaneShooterController::SpawnPlayer()
 {
-	// Get the player controller
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	
 	// Check if the player controller is valid
-	if (PlayerController && PlayerPawnClass)
+	if (PlayerController && PlayerSPawnClass)
 	{
 		// Get spawn location and rotation from the PlayerSpawnPoint component
 		FVector SpawnLocation = PlayerSpawnPoint->GetComponentLocation();
@@ -84,7 +105,7 @@ void AHCT26AirPlaneShooterController::SpawnPlayer()
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		
 		APawn* SpawnedPlayer = GetWorld()->SpawnActor<APawn>(
-								PlayerPawnClass,
+								PlayerSPawnClass,
 								SpawnLocation,
 								SpawnRotation,
 								SpawnParams);
@@ -92,10 +113,6 @@ void AHCT26AirPlaneShooterController::SpawnPlayer()
 		// Check if the player was spawned successfully
 		if (SpawnedPlayer)
 		{
-			// Update Location
-			FVector FinalLocation = SpawnLocation + FVector(0, 0, 50);
-			SpawnedPlayer->SetActorLocation(FinalLocation);
-			
 			// Possess the spawned player pawn with the player controller
 			PlayerController->Possess(SpawnedPlayer);
 			
@@ -112,7 +129,7 @@ void AHCT26AirPlaneShooterController::SpawnPlayer()
 		
 		// SetViewTargetWithBlend
 		PlayerController->SetViewTargetWithBlend(this, 
-												1.0f,
+												0.8f,
 												VTBlend_EaseInOut,
 												3.0f,
 												true
@@ -128,7 +145,37 @@ void AHCT26AirPlaneShooterController::SpawnPlayer()
 	else
 	{
 		// Print ERROR message to LOG
-		UE_LOG(HCT26GameLogs::LogHCT, Error, TEXT("PlayerController not found"));
+		UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("PlayerController not found"));
 	}
+}
+
+void AHCT26AirPlaneShooterController::SpawnEnemy()
+{
+	// Get spawn location and rotation from the PlayerSpawnPoint component
+	FVector SpawnLocation = EnemySpawnPoint->GetComponentLocation();
+	FRotator SpawnRotation = EnemySpawnPoint->GetComponentRotation();
+	
+	// Spawn the player pawn
+	FActorSpawnParameters SpawnParams;
+
+	// Set the spawn collision handling to always spawn, even if there are collisions
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		
+	APawn* SpawnedEnemy = GetWorld()->SpawnActor<APawn>(
+							EnemySpawnClass,
+							SpawnLocation,
+							SpawnRotation,
+							SpawnParams);
+	
+	// Hide the enemy spawn point after spawning the enemy
+	EnemySpawnPoint->SetHiddenInGame(true);
+	
+}
+
+void AHCT26AirPlaneShooterController::CameraShake(bool IsPlayerDead)
+{
+	// Check if the player is dead and trigger camera shake
+	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Dead !!!"));
+	bIsCameraShaking = true;
 }
 
