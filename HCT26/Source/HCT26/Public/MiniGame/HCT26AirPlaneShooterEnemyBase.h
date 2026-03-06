@@ -19,6 +19,15 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug")
+	bool bIsEnemyDead;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Setup")
+	float MoveSpeed;
+	
+	UPROPERTY()
+	FVector CurrentVelocity;
 
 public:
 	// Called every frame
@@ -44,5 +53,7 @@ public:
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 			   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 			   const FHitResult& Hit);
-
+	
+	UFUNCTION()
+	void RandomDirection();
 };

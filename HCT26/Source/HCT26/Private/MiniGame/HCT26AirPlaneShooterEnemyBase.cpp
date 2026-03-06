@@ -9,6 +9,8 @@ AHCT26AirPlaneShooterEnemyBase::AHCT26AirPlaneShooterEnemyBase()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bIsEnemyDead = false;
+	MoveSpeed = 100.0f;
 	
 	// Create root scene component
 	SceneRoot = CreateDefaultSubobject<USceneComponent>("SceneRoot");
@@ -35,6 +37,7 @@ AHCT26AirPlaneShooterEnemyBase::AHCT26AirPlaneShooterEnemyBase()
 void AHCT26AirPlaneShooterEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	RandomDirection();
 	
 	CollisionComponent->OnComponentHit.AddDynamic(this, &AHCT26AirPlaneShooterEnemyBase::OnHit);
 }
@@ -43,6 +46,22 @@ void AHCT26AirPlaneShooterEnemyBase::BeginPlay()
 void AHCT26AirPlaneShooterEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	FVector CurrentLocation = GetActorLocation();
+	CurrentLocation += CurrentVelocity * DeltaTime;
+	
+	SetActorLocation(CurrentLocation);
+	
+	// Boundary check
+	if (CurrentLocation.Y < 1390.0f)
+	{
+		CurrentVelocity = FVector(0.0f, MoveSpeed, 0.0f); // move right
+	}
+	
+	else if (CurrentLocation.Y > 1790.0f)
+	{
+		CurrentVelocity = FVector(0.0f, -MoveSpeed, 0.0f); // move left
+	}
 }
 
 // Called to bind functionality to input
@@ -63,6 +82,20 @@ void AHCT26AirPlaneShooterEnemyBase::OnHit(UPrimitiveComponent* HitComp, AActor*
 			FColor::Green,         // Text color
 			TEXT("Enemy Hit !!!")
 		);
+	}
+}
+
+void AHCT26AirPlaneShooterEnemyBase::RandomDirection()
+{
+	// Randomly choose left or right
+	int32 RandomChoice = FMath::RandRange(0, 1);
+	if (RandomChoice == 0)
+	{
+		CurrentVelocity = FVector(0.0f, MoveSpeed, 0.0f); // right
+	}
+	else
+	{
+		CurrentVelocity = FVector(0.0f, -MoveSpeed, 0.0f); // left
 	}
 }
 
