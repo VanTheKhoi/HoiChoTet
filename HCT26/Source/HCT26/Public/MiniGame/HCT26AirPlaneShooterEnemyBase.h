@@ -23,11 +23,29 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug")
 	bool bIsEnemyDead;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug")
+	bool bIsSuicide;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="EnemySetup|Movement")
 	float MoveSpeed;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="EnemySetup|Health")
+	float Health;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="EnemySetup|Effects")
+	TObjectPtr<UParticleSystem> ExplosionParticleSystem;
+	
+	UPROPERTY()
+	bool bIsStopMovement;
 	
 	UPROPERTY()
 	FVector CurrentVelocity;
+	
+	UPROPERTY()
+	bool bSpawnExplosionEffect;
+	
+	UPROPERTY()
+	FTimerHandle DelayTimerHandle;
 
 public:
 	// Called every frame
@@ -56,4 +74,13 @@ public:
 	
 	UFUNCTION()
 	void RandomDirection();
+	
+	UFUNCTION()
+	void MoveLeftRight(float DeltaTime);
+	
+	UFUNCTION()
+	void EnemyDeath();
+	
+	UFUNCTION()
+	void EnemySuicide(float DeltaTime);
 };
