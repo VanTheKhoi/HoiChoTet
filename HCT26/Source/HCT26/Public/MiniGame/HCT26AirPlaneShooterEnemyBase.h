@@ -65,13 +65,7 @@ public:
 	// Sphere Collision
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<USphereComponent> CollisionComponent;
-	
-	// Function to handle hit events
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
-			   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
-			   const FHitResult& Hit);
-	
+
 	UFUNCTION()
 	void RandomDirection();
 	

@@ -8,6 +8,7 @@
 #include "Core/GamePlayTags/HCT26GamePlayTags.h"
 #include "Kismet/GameplayStatics.h"
 #include "MiniGame/HCT26AirPlaneShooterBulletBase.h"
+#include "MiniGame/HCT26AirPlaneShooterEnemyBase.h"
 #include "Particles/ParticleSystemComponent.h"
 
 
@@ -39,12 +40,13 @@ AHCT26AirPlaneShooterPlayerBase::AHCT26AirPlaneShooterPlayerBase()
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>("CollisionSphere");
 	CollisionComponent->SetupAttachment(SceneRoot);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	CollisionComponent->SetCollisionObjectType(ECC_Pawn);
-	CollisionComponent->SetCollisionResponseToAllChannels(ECR_Block);
+	CollisionComponent->SetCollisionObjectType(ECC_WorldDynamic);
+	CollisionComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CollisionComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	CollisionComponent->SetGenerateOverlapEvents(true);
 	
 	// Make sure hit events are enabled
-	CollisionComponent->SetNotifyRigidBodyCollision(true);
+	// CollisionComponent->SetNotifyRigidBodyCollision(true);
 	
 }
 
@@ -74,7 +76,7 @@ void AHCT26AirPlaneShooterPlayerBase::BeginPlay()
 	}
 	
 	// Bind hit event
-	CollisionComponent->OnComponentHit.AddDynamic(this, &AHCT26AirPlaneShooterPlayerBase::OnHit);
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AHCT26AirPlaneShooterPlayerBase::OnOverlapBegin);
 }
 
 // Called every frame
@@ -160,8 +162,8 @@ void AHCT26AirPlaneShooterPlayerBase::SetupPlayerInputComponent(UInputComponent*
 	}
 }
 
-void AHCT26AirPlaneShooterPlayerBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AHCT26AirPlaneShooterPlayerBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (GEngine)
 	{
@@ -174,19 +176,30 @@ void AHCT26AirPlaneShooterPlayerBase::OnHit(UPrimitiveComponent* HitComp, AActor
 		);
 	}
 	
-	// Check if hit actor is a bullet and apply damage
+	// Chezck if hit actor is a bullet and apply damage
 	if (OtherActor && OtherActor != this)
 	{
 		AHCT26AirPlaneShooterBulletBase* Bullet = Cast<AHCT26AirPlaneShooterBulletBase>(OtherActor);
+		AHCT26AirPlaneShooterEnemyBase* Enemy = Cast<AHCT26AirPlaneShooterEnemyBase>(OtherActor);
 		
-		if (Bullet->TagContainer.HasTag(HCT26GameplayTags::TAG_Bullet))
+		if (Bullet)
+		{
+			if (Bullet->TagContainer.HasTag(HCT26GameplayTags::TAG_Bullet))
+			{
+				// Apply damage to the player
+				DecreasedHealth = Bullet->Damage;
+				bIsHit = true;
+			
+				// Destroy the bullet after hit
+				Bullet->Destroy();
+			}
+		}
+		
+		else if (Enemy)
 		{
 			// Apply damage to the player
-			DecreasedHealth = Bullet->Damage;
+			DecreasedHealth = 100.0f;
 			bIsHit = true;
-			
-			// Destroy the bullet after hit
-			Bullet->Destroy();
 		}
 	}
 }
@@ -201,7 +214,9 @@ void AHCT26AirPlaneShooterPlayerBase::Shoot(const FInputActionValue& Value)
 		FVector SpawnLocation = GetActorLocation();
 		FRotator SpawnRotation = GetActorRotation();
 		
-		FVector FinalLocation = SpawnLocation + FVector(0, 0, 1);
+		FVector FinalLocation = SpawnLocation + FVector(0, 0, 20);
+		
+		// UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Spawning Bullet at CurrentLocation: %s, FinalLocation: %s"), *SpawnLocation.ToString(), *FinalLocation.ToString());
 	
 		// Spawn Bullet
 		FActorSpawnParameters SpawnParams;

@@ -3,6 +3,7 @@
 
 #include "MiniGame/HCT26AirPlaneShooterEnemyBase.h"
 
+#include "Core/GameLogs/GameLogsBase.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -29,11 +30,10 @@ AHCT26AirPlaneShooterEnemyBase::AHCT26AirPlaneShooterEnemyBase()
 	CollisionComponent->SetupAttachment(SceneRoot);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionComponent->SetCollisionObjectType(ECC_Pawn);
-	CollisionComponent->SetCollisionResponseToAllChannels(ECR_Block);
+	CollisionComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CollisionComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	CollisionComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 	CollisionComponent->SetGenerateOverlapEvents(true);
-	
-	// Make sure hit events are enabled
-	CollisionComponent->SetNotifyRigidBodyCollision(true);
 	
 }
 
@@ -43,7 +43,6 @@ void AHCT26AirPlaneShooterEnemyBase::BeginPlay()
 	Super::BeginPlay();
 	RandomDirection();
 	
-	CollisionComponent->OnComponentHit.AddDynamic(this, &AHCT26AirPlaneShooterEnemyBase::OnHit);
 }
 
 // Called every frame
@@ -65,21 +64,6 @@ void AHCT26AirPlaneShooterEnemyBase::Tick(float DeltaTime)
 void AHCT26AirPlaneShooterEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-void AHCT26AirPlaneShooterEnemyBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	if (GEngine)
-	{
-		// Basic message
-		GEngine->AddOnScreenDebugMessage(
-			-1,                    // Key (-1 = always add new message)
-			5.0f,                  // Display time in seconds
-			FColor::Green,         // Text color
-			TEXT("Enemy Hit !!!")
-		);
-	}
 }
 
 void AHCT26AirPlaneShooterEnemyBase::RandomDirection()
