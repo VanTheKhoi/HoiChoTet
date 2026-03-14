@@ -165,18 +165,7 @@ void AHCT26AirPlaneShooterPlayerBase::SetupPlayerInputComponent(UInputComponent*
 void AHCT26AirPlaneShooterPlayerBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (GEngine)
-	{
-		// Basic message
-		GEngine->AddOnScreenDebugMessage(
-			-1,                    // Key (-1 = always add new message)
-			5.0f,                  // Display time in seconds
-			FColor::Red,         // Text color
-			TEXT("Player Hit !!!")
-		);
-	}
-	
-	// Chezck if hit actor is a bullet and apply damage
+	// Check if hit actor is a bullet and apply damage
 	if (OtherActor && OtherActor != this)
 	{
 		AHCT26AirPlaneShooterBulletBase* Bullet = Cast<AHCT26AirPlaneShooterBulletBase>(OtherActor);
@@ -184,6 +173,8 @@ void AHCT26AirPlaneShooterPlayerBase::OnOverlapBegin(UPrimitiveComponent* Overla
 		
 		if (Bullet)
 		{
+			UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Hit Bullet"));
+			
 			if (Bullet->TagContainer.HasTag(HCT26GameplayTags::TAG_Bullet))
 			{
 				// Apply damage to the player
@@ -197,6 +188,8 @@ void AHCT26AirPlaneShooterPlayerBase::OnOverlapBegin(UPrimitiveComponent* Overla
 		
 		else if (Enemy)
 		{
+			UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Hit Enemy"));
+			
 			// Apply damage to the player
 			DecreasedHealth = 100.0f;
 			bIsHit = true;

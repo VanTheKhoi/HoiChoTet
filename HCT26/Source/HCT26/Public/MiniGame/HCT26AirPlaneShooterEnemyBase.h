@@ -46,6 +46,9 @@ protected:
 	
 	UPROPERTY()
 	FTimerHandle DelayTimerHandle;
+	
+	UPROPERTY()
+	FLinearColor OriginalColor;
 
 public:
 	// Called every frame
@@ -77,4 +80,20 @@ public:
 	
 	UFUNCTION()
 	void EnemySuicide(float DeltaTime);
+	
+	UFUNCTION()
+	void CreateAndApplyDMI(FLinearColor Color, FName ParameterName);
+	
+	UFUNCTION()
+	void Damaged();
+	
+	UFUNCTION()
+	virtual void OnOverlapBegin(
+		UPrimitiveComponent* OverlappedComponent, 
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, 
+		int32 OtherBodyIndex, 
+		bool bFromSweep, 
+		const FHitResult& SweepResult);
+	
 };

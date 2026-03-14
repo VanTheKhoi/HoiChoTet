@@ -2,6 +2,7 @@
 
 
 #include "MiniGame/HCT26AirPlaneShooterEnemyBase.h"
+#include "MiniGame/HCT26AirPlaneShooterBulletBase.h"
 
 #include "Core/GameLogs/GameLogsBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -16,6 +17,7 @@ AHCT26AirPlaneShooterEnemyBase::AHCT26AirPlaneShooterEnemyBase()
 	bIsStopMovement = false;
 	bIsSuicide = false;
 	MoveSpeed = 100.0f;
+	OriginalColor = FLinearColor(1.0f, 0.3f, 0.0f, 0.1f);
 	
 	// Create root scene component
 	SceneRoot = CreateDefaultSubobject<USceneComponent>("SceneRoot");
@@ -42,6 +44,9 @@ void AHCT26AirPlaneShooterEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 	RandomDirection();
+	
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AHCT26AirPlaneShooterEnemyBase::OnOverlapBegin);
+
 	
 }
 
@@ -167,5 +172,97 @@ void AHCT26AirPlaneShooterEnemyBase::EnemySuicide(float DeltaTime)
 	
 		SetActorLocation(CurrentLocation);
 	}
+}
+
+void AHCT26AirPlaneShooterEnemyBase::CreateAndApplyDMI(FLinearColor Color, FName ParameterName)
+{
+	// Create a dynamic material instance for each material slot and set the specified parameter to the given color
+	int32 MaterialCount = AirPlaneMesh->GetNumMaterials();
+	
+	for (int32 i = 0; i < MaterialCount; i++)
+	{
+		// Get Material 
+		UMaterialInterface* Material = AirPlaneMesh->GetMaterial(i);
+		
+		// Check if it's a dynamic material instance
+		UMaterialInstanceDynamic* DynamicMaterial = Cast<UMaterialInstanceDynamic>(Material);
+		
+		if (!DynamicMaterial)
+		{
+			// If it's not a dynamic material instance, create one
+			DynamicMaterial = AirPlaneMesh->CreateAndSetMaterialInstanceDynamic(i);
+		}
+		
+		if (DynamicMaterial)
+		{
+			DynamicMaterial->SetVectorParameterValue(ParameterName, Color);
+		}
+	}
+}
+
+void AHCT26AirPlaneShooterEnemyBase::Damaged()
+{
+	// Change player color to red briefly to indicate hit
+	CreateAndApplyDMI(FLinearColor(1.0f, 0.0f, 0.0f, 1.0f), FName("Color1"));
+			
+	// Change color back to original after delay
+	GetWorldTimerManager().SetTimer
+	(
+		DelayTimerHandle,
+		[this]()
+		{
+			CreateAndApplyDMI( 
+				OriginalColor,
+				FName("Color1"));
+		},
+		0.3f,    // Delay in seconds
+		false    // Don't loop
+	);
+}
+
+void AHCT26AirPlaneShooterEnemyBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                                    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor && OtherActor != this)
+	{
+		AHCT26AirPlaneShooterBulletBase* Bullet = Cast<AHCT26AirPlaneShooterBulletBase>(OtherActor);
+		
+		if (Bullet)
+		{
+			// Apply damage to enemy
+			Health -= Bullet->Damage;
+			
+			// // Log the damage and remaining health
+			// if (GEngine)
+			// {
+			// 	// Basic message
+			// 	GEngine->AddOnScreenDebugMessage(
+			// 		-1,                    // Key (-1 = always add new message)
+			// 		5.0f,                  // Display time in seconds
+			// 		FColor::Green,         // Text color
+			// 		TEXT("Health: ") + FString::SanitizeFloat(Health)
+			// 	);
+			// }
+			
+			Damaged();
+			
+			// Check if enemy is dead
+			if (Health <= 0.0f)
+			{
+				bIsEnemyDead = true;
+			}
+			
+			else if (Health <= 40.0f)
+			{
+				bIsSuicide = true;
+				OriginalColor = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);
+			}
+			
+			// Destroy the bullet
+			Bullet->Destroy(true);
+		}
+
+	}
+	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Enemy Hit"));
 }
 
