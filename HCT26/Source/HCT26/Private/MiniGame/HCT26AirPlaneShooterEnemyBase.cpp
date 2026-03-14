@@ -15,6 +15,7 @@ AHCT26AirPlaneShooterEnemyBase::AHCT26AirPlaneShooterEnemyBase()
 	PrimaryActorTick.bCanEverTick = true;
 	bIsEnemyDead = false;
 	bIsStopMovement = false;
+	bSpawnExplosionEffect = false;
 	bIsSuicide = false;
 	MoveSpeed = 100.0f;
 	OriginalColor = FLinearColor(1.0f, 0.3f, 0.0f, 0.1f);
@@ -232,19 +233,15 @@ void AHCT26AirPlaneShooterEnemyBase::OnOverlapBegin(UPrimitiveComponent* Overlap
 			// Apply damage to enemy
 			Health -= Bullet->Damage;
 			
-			// // Log the damage and remaining health
-			// if (GEngine)
-			// {
-			// 	// Basic message
-			// 	GEngine->AddOnScreenDebugMessage(
-			// 		-1,                    // Key (-1 = always add new message)
-			// 		5.0f,                  // Display time in seconds
-			// 		FColor::Green,         // Text color
-			// 		TEXT("Health: ") + FString::SanitizeFloat(Health)
-			// 	);
-			// }
-			
 			Damaged();
+			
+			// Play Hit effect
+			if (HitParticleSystem)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), 
+										HitParticleSystem, 
+										Bullet->GetActorLocation());
+			}
 			
 			// Check if enemy is dead
 			if (Health <= 0.0f)

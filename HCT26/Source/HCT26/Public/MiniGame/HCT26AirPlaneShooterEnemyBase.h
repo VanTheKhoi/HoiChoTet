@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="EnemySetup|Effects")
 	TObjectPtr<UParticleSystem> ExplosionParticleSystem;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="EnemySetup|Effects")
+	TObjectPtr<UParticleSystem> HitParticleSystem;
+	
 	UPROPERTY()
 	bool bIsStopMovement;
 	
