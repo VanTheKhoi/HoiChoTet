@@ -162,7 +162,7 @@ void AHCT26AirPlaneShooterController::SpawnEnemy()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	
 	// Spawn 3 enemies
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		// Spawn random location
 		FVector RandomLocation = FVector(
