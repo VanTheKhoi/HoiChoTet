@@ -80,6 +80,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Effects")
 	bool bSpawnExplosionEffect;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetup|Effects")
+	TObjectPtr<UParticleSystem> HitParticleSystem;
+	
 	// Scene Root
 	UPROPERTY()
 	TObjectPtr<USceneComponent> SceneRoot;

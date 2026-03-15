@@ -180,6 +180,14 @@ void AHCT26AirPlaneShooterPlayerBase::OnOverlapBegin(UPrimitiveComponent* Overla
 				// Apply damage to the player
 				DecreasedHealth = Bullet->Damage;
 				bIsHit = true;
+				
+				// Play Hit effect
+				if (HitParticleSystem)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), 
+											HitParticleSystem, 
+											Bullet->GetActorLocation());
+				}
 			
 				// Destroy the bullet after hit
 				Bullet->Destroy();
@@ -217,7 +225,7 @@ void AHCT26AirPlaneShooterPlayerBase::Shoot(const FInputActionValue& Value)
 		// Set the spawn collision handling to always spawn, even if there are collisions
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		
-		AActor* SpawnedPlayer = GetWorld()->SpawnActor<AActor>(
+		GetWorld()->SpawnActor<AActor>(
 								BulletClass,
 								FinalLocation,
 								SpawnRotation,

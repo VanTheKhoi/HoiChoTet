@@ -155,26 +155,29 @@ void AHCT26AirPlaneShooterController::SpawnEnemy()
 	FVector SpawnLocation = EnemySpawnPoint->GetComponentLocation();
 	FRotator SpawnRotation = EnemySpawnPoint->GetComponentRotation();
 	
-	// Spawn random location --- TO DO Random in range
-	FVector RandomLocation = FVector(
-		SpawnLocation.X, 
-		FMath::RandRange(SpawnLocation.Y-250.0f, SpawnLocation.Y+250.0f), // Random Y between -200 and 200
-		SpawnLocation.Z 
-	);
-	
 	// Spawn the player pawn
 	FActorSpawnParameters SpawnParams;
 
 	// Set the spawn collision handling to always spawn, even if there are collisions
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		
-	GetWorld()->SpawnActor<APawn>(
-								EnemySpawnClass,
-								RandomLocation,
-								SpawnRotation,
-								SpawnParams
-								);
 	
+	// Spawn 3 enemies
+	for (int i = 0; i < 3; i++)
+	{
+		// Spawn random location
+		FVector RandomLocation = FVector(
+			SpawnLocation.X, 
+			FMath::RandRange(SpawnLocation.Y-250.0f, SpawnLocation.Y+250.0f), // Random Y between -200 and 200
+			SpawnLocation.Z 
+		);
+		
+		GetWorld()->SpawnActor<APawn>(
+							EnemySpawnClass,
+							RandomLocation,
+							SpawnRotation,
+							SpawnParams
+							);
+	}
 	// Hide the enemy spawn point after spawning the enemy
 	EnemySpawnPoint->SetHiddenInGame(true);
 	

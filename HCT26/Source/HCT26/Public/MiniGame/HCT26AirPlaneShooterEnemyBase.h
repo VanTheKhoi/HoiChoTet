@@ -38,6 +38,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="EnemySetup|Effects")
 	TObjectPtr<UParticleSystem> HitParticleSystem;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="EnemySetup|Bullet")
+	TSubclassOf<AActor> BulletClass;
+	
 	UPROPERTY()
 	bool bIsStopMovement;
 	
@@ -49,6 +52,9 @@ protected:
 	
 	UPROPERTY()
 	FTimerHandle DelayTimerHandle;
+	
+	UPROPERTY()
+	FTimerHandle SpawnTimerHandle;
 	
 	UPROPERTY()
 	FLinearColor OriginalColor;
@@ -89,6 +95,9 @@ public:
 	
 	UFUNCTION()
 	void Damaged();
+	
+	UFUNCTION()
+	void SpawnBullet();
 	
 	UFUNCTION()
 	virtual void OnOverlapBegin(

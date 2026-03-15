@@ -3,7 +3,6 @@
 
 #include "MiniGame/HCT26AirPlaneShooterEnemyBase.h"
 #include "MiniGame/HCT26AirPlaneShooterBulletBase.h"
-
 #include "Core/GameLogs/GameLogsBase.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -47,8 +46,23 @@ void AHCT26AirPlaneShooterEnemyBase::BeginPlay()
 	RandomDirection();
 	
 	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AHCT26AirPlaneShooterEnemyBase::OnOverlapBegin);
-
 	
+	GetWorldTimerManager().SetTimer(
+		SpawnTimerHandle,
+		[this]()
+		{
+			// Start repeating timer: calls SpawnBullet every 1 second
+			GetWorldTimerManager().SetTimer(
+				SpawnTimerHandle,
+				this,
+				&AHCT26AirPlaneShooterEnemyBase::SpawnBullet,
+				1.0f,   // interval in seconds
+				true    // looping
+			);
+		},
+		0.8f,
+		false
+	);
 }
 
 // Called every frame
@@ -219,6 +233,25 @@ void AHCT26AirPlaneShooterEnemyBase::Damaged()
 		0.3f,    // Delay in seconds
 		false    // Don't loop
 	);
+}
+
+void AHCT26AirPlaneShooterEnemyBase::SpawnBullet()
+{
+	if (!bIsEnemyDead)
+	{
+		if (BulletClass)
+		{
+			// Spawn bullet at the location of the player
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			
+			GetWorld()->SpawnActor<AActor>(
+									BulletClass,
+									GetActorLocation() + FVector(0, 0, -15),
+									GetActorRotation(),
+									SpawnParams);
+		}
+	}
 }
 
 void AHCT26AirPlaneShooterEnemyBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
