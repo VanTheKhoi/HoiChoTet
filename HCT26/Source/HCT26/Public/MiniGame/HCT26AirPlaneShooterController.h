@@ -25,14 +25,17 @@ protected:
 	TObjectPtr<USceneComponent> SceneRoot;
 	
 	// Player Pawn Class Reference
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Spawn")
 	TSubclassOf<APawn> PlayerSPawnClass;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Spawn")
 	TSubclassOf<APawn> EnemySpawnClass;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Gameplay")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
 	bool bIsCameraShaking;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
+	TSubclassOf<UUserWidget> MainMenuWidget;
 	
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -54,6 +57,15 @@ protected:
 	
 	UPROPERTY()
 	APlayerController* PlayerController;
+	
+	UPROPERTY()
+	FTimerHandle SpawnTimerHandle;
+	
+	UPROPERTY()
+	int32 EnemySpawnCount;
+	
+	UPROPERTY()
+	int32 EnemyToSpawn;
 
 public:
 	// Called every frame
@@ -69,6 +81,9 @@ public:
 	// Spawn enemy function
 	UFUNCTION()
 	void SpawnEnemy();
+	
+	UFUNCTION()
+	void SpawnNextEnemy();
 	
 	// Camera shake function
 	UFUNCTION()

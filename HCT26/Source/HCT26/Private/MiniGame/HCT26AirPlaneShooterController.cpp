@@ -74,19 +74,31 @@ void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 	// Call SpawnPlayer function
 	SpawnPlayer();
 	
-	// bind the dead event
-	PlayerBase = Cast<AHCT26AirPlaneShooterPlayerBase>(PlayerBase);
-	if (PlayerBase)
-	{
-		UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Base LOAD"));
-		PlayerBase->PlayerDead.AddDynamic(this, &AHCT26AirPlaneShooterController::CameraShake);
-	}else
-	{
-		UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Base NOTLOAD"));
-	}
+	EnemySpawnCount = 0;
+	EnemyToSpawn = 4;
 	
-	// Call SpawnEnemy function
-	SpawnEnemy();
+	// Start the spawn timer
+	GetWorldTimerManager().SetTimer(
+		SpawnTimerHandle,
+		this,
+		&AHCT26AirPlaneShooterController::SpawnNextEnemy,
+		0.2f,  // delay
+		true   // Looping
+	);
+	
+	// Hide the enemy spawn point after spawning the enemy
+	EnemySpawnPoint->SetHiddenInGame(true);
+	
+	// // bind the dead event
+	// PlayerBase = Cast<AHCT26AirPlaneShooterPlayerBase>(PlayerBase);
+	// if (PlayerBase)
+	// {
+	// 	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Base LOAD"));
+	// 	PlayerBase->PlayerDead.AddDynamic(this, &AHCT26AirPlaneShooterController::CameraShake);
+	// }else
+	// {
+	// 	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Base NOTLOAD"));
+	// }
 }
 
 void AHCT26AirPlaneShooterController::SpawnPlayer()
@@ -161,26 +173,33 @@ void AHCT26AirPlaneShooterController::SpawnEnemy()
 	// Set the spawn collision handling to always spawn, even if there are collisions
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	
-	// Spawn 3 enemies
-	for (int i = 0; i < 4; i++)
+	// Spawn random location
+	FVector RandomLocation = FVector(
+		SpawnLocation.X, 
+		FMath::RandRange(SpawnLocation.Y-250.0f, SpawnLocation.Y+250.0f), // Random Y between -200 and 200
+		SpawnLocation.Z 
+	);
+				
+	GetWorld()->SpawnActor<APawn>(
+						EnemySpawnClass,
+						RandomLocation,
+						SpawnRotation,
+						SpawnParams
+						);
+}
+
+void AHCT26AirPlaneShooterController::SpawnNextEnemy()
+{
+	if (EnemySpawnCount < EnemyToSpawn)
 	{
-		// Spawn random location
-		FVector RandomLocation = FVector(
-			SpawnLocation.X, 
-			FMath::RandRange(SpawnLocation.Y-250.0f, SpawnLocation.Y+250.0f), // Random Y between -200 and 200
-			SpawnLocation.Z 
-		);
-		
-		GetWorld()->SpawnActor<APawn>(
-							EnemySpawnClass,
-							RandomLocation,
-							SpawnRotation,
-							SpawnParams
-							);
+		SpawnEnemy();
+		EnemySpawnCount++;
 	}
-	// Hide the enemy spawn point after spawning the enemy
-	EnemySpawnPoint->SetHiddenInGame(true);
-	
+	else
+	{
+		// All enemies spawned, clear the timer
+		GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+	}
 }
 
 void AHCT26AirPlaneShooterController::CameraShake(bool IsPlayerDead)
