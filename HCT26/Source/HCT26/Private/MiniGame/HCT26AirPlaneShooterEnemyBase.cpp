@@ -56,7 +56,7 @@ void AHCT26AirPlaneShooterEnemyBase::BeginPlay()
 				SpawnTimerHandle,
 				this,
 				&AHCT26AirPlaneShooterEnemyBase::SpawnBullet,
-				1.0f,   // interval in seconds
+				1.4f,   // interval in seconds
 				true    // looping
 			);
 		},
