@@ -3,7 +3,6 @@
 #include "MiniGame/HCT26AirPlaneShooterController.h"
 #include "MiniGame/HCT26AirPlaneShooterPlayerBase.h"
 #include "Interaction/HCT26AirPlaneShooterButton.h"
-
 #include "Blueprint/UserWidget.h"
 #include "Core/GameLogs/GameLogsBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -71,23 +70,70 @@ void AHCT26AirPlaneShooterController::Tick(float DeltaTime)
 
 void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 {
+	
+	if (WidgetClass)
+	{
+		// Create widget instance
+		MainMenuWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetClass);
+		
+		// SetViewTargetWithBlend
+		PlayerController->SetViewTargetWithBlend(this, 
+												0.8f,
+												VTBlend_EaseInOut,
+												3.0f,
+												true
+												);  
+		
+		// Set HUD visibility to false
+		AHCT26HUD* HCTHUD = Cast<AHCT26HUD>(PlayerController->GetHUD());
+		if (HCTHUD)
+		{
+			HCTHUD->MainMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+		
+		// Add Game Menu Widget to viewport
+		FTimerHandle DelayHandle;
+		GetWorldTimerManager().SetTimer(DelayHandle, [this]()
+		{
+			if (MainMenuWidget)
+			{
+				MainMenuWidget->AddToViewport();
+				
+				// Show mouse cursor and enable UI interaction
+				PlayerController->bShowMouseCursor = true;
+				PlayerController->bEnableClickEvents = true;
+				PlayerController->bEnableMouseOverEvents = true;
+				
+				FInputModeGameAndUI InputMode;
+				InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+				InputMode.SetHideCursorDuringCapture(false);
+				PlayerController->SetInputMode(InputMode);
+			}
+		},
+		1.0f,
+		false
+		);
+		
+		// Clear the timer
+		// GetWorldTimerManager().ClearTimer(DelayHandle);
+	}
 	// Call SpawnPlayer function
-	SpawnPlayer();
-	
-	EnemySpawnCount = 0;
-	EnemyToSpawn = 4;
-	
-	// Start the spawn timer
-	GetWorldTimerManager().SetTimer(
-		SpawnTimerHandle,
-		this,
-		&AHCT26AirPlaneShooterController::SpawnNextEnemy,
-		0.2f,  // delay
-		true   // Looping
-	);
-	
-	// Hide the enemy spawn point after spawning the enemy
-	EnemySpawnPoint->SetHiddenInGame(true);
+	// SpawnPlayer();
+	//
+	// EnemySpawnCount = 0;
+	// EnemyToSpawn = 4;
+	//
+	// // Start the spawn timer
+	// GetWorldTimerManager().SetTimer(
+	// 	SpawnTimerHandle,
+	// 	this,
+	// 	&AHCT26AirPlaneShooterController::SpawnNextEnemy,
+	// 	0.2f,  // delay
+	// 	true   // Looping
+	// );
+	//
+	// // Hide the enemy spawn point after spawning the enemy
+	// EnemySpawnPoint->SetHiddenInGame(true);
 	
 	// // bind the dead event
 	// PlayerBase = Cast<AHCT26AirPlaneShooterPlayerBase>(PlayerBase);

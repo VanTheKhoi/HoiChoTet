@@ -35,7 +35,7 @@ protected:
 	bool bIsCameraShaking;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
-	TSubclassOf<UUserWidget> MainMenuWidget;
+	TSubclassOf<UUserWidget> WidgetClass;
 	
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -66,6 +66,9 @@ protected:
 	
 	UPROPERTY()
 	int32 EnemyToSpawn;
+	
+	UPROPERTY()
+	UUserWidget* MainMenuWidget;
 
 public:
 	// Called every frame
@@ -73,6 +76,8 @@ public:
 	
 	UFUNCTION()
 	void StartAirPlaneShooterGame(bool IsStartGame);
+	
+	// 
 	
 	// Spawn player function
 	UFUNCTION()
