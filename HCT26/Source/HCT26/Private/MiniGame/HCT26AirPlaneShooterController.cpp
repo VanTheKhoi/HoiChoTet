@@ -1,6 +1,8 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MiniGame/HCT26AirPlaneShooterController.h"
+
+#include "EnhancedInputSubsystems.h"
 #include "MiniGame/HCT26AirPlaneShooterPlayerBase.h"
 #include "Interaction/HCT26AirPlaneShooterButton.h"
 #include "Blueprint/UserWidget.h"
@@ -114,9 +116,17 @@ void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 		false
 		);
 		
+		// Cleanup current Mappings
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (Subsystem) 		
+		{
+			Subsystem->ClearAllMappings();
+		}
+		
 		// Clear the timer
 		// GetWorldTimerManager().ClearTimer(DelayHandle);
 	}
+	
 	// Call SpawnPlayer function
 	// SpawnPlayer();
 	//
