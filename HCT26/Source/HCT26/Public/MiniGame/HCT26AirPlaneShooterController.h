@@ -56,6 +56,9 @@ protected:
 	class AHCT26AirPlaneShooterButton* Broadcaster;
 	
 	UPROPERTY()
+	class UHCT26AirPlaneShooterGameMenuBase* GameMenu;
+	
+	UPROPERTY()
 	APlayerController* PlayerController;
 	
 	UPROPERTY()
@@ -77,7 +80,8 @@ public:
 	UFUNCTION()
 	void StartAirPlaneShooterGame(bool IsStartGame);
 	
-	// 
+	UFUNCTION()
+	void PlayAirPlaneShooterGame();
 	
 	// Spawn player function
 	UFUNCTION()

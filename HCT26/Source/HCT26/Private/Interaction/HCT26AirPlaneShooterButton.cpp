@@ -28,7 +28,7 @@ void AHCT26AirPlaneShooterButton::Tick(float DeltaTime)
 void AHCT26AirPlaneShooterButton::StartAirPlaneShooterGame(AActor* OverlappingActor)
 {
 	// Debug message
-	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Start AirPlaneShooter Game!"));
+	// UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Start AirPlaneShooter Game!"));
 	
 	// Broadcast the StartGame event with true to indicate the game should start
 	StartGame.Broadcast(true);

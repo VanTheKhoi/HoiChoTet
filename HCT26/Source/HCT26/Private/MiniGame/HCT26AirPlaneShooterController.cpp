@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "MiniGame/HCT26AirPlaneShooterPlayerBase.h"
 #include "Interaction/HCT26AirPlaneShooterButton.h"
+#include "MiniGame/HCT26AirPlaneShooterGameMenuBase.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/GameLogs/GameLogsBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -60,7 +61,6 @@ void AHCT26AirPlaneShooterController::BeginPlay()
 	{
 		Broadcaster->StartGame.AddDynamic(this, &AHCT26AirPlaneShooterController::StartAirPlaneShooterGame);
 	}
-	
 }
 
 // Called every frame
@@ -123,9 +123,27 @@ void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 			Subsystem->ClearAllMappings();
 		}
 		
-		// Clear the timer
-		// GetWorldTimerManager().ClearTimer(DelayHandle);
+		// Bind event 
+		GameMenu = Cast<UHCT26AirPlaneShooterGameMenuBase>(MainMenuWidget);
+	
+		if (GameMenu)
+		{
+			GameMenu->PlayGame.AddDynamic(this, &AHCT26AirPlaneShooterController::PlayAirPlaneShooterGame);
+		}
+		else
+		{
+			UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("CAN't Player GAME !!!!!!!!!"));
+
+		}
 	}
+}
+
+void AHCT26AirPlaneShooterController::PlayAirPlaneShooterGame()
+{
+	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player GAME !!!!!!!!!"));
+	
+	// Clear the timer
+	// GetWorldTimerManager().ClearTimer(DelayHandle);
 	
 	// Call SpawnPlayer function
 	// SpawnPlayer();
