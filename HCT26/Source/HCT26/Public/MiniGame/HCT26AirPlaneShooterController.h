@@ -65,6 +65,9 @@ protected:
 	FTimerHandle SpawnTimerHandle;
 	
 	UPROPERTY()
+	FTimerHandle DelayHandle;
+	
+	UPROPERTY()
 	int32 EnemySpawnCount;
 	
 	UPROPERTY()
