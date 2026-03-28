@@ -21,10 +21,6 @@ class HCT26_API AHCT26PlayerController : public APlayerController
 protected:
 	virtual void SetupInputComponent() override;
 	virtual void BeginPlay() override;
-	
-	// Input actions
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
-	UInputMappingContext* DefaultMappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	UInputAction* IA_SwitchPawn;
@@ -47,4 +43,8 @@ protected:
 	void DoSwitch();
 	void SwitchToNearestPawn(const FInputActionValue& Value);
 	void MoveInWorld(const FInputActionValue& Value);
+	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputMappingContext* DefaultMappingContext;
 };

@@ -3,9 +3,9 @@
 #include "MiniGame/HCT26AirPlaneShooterController.h"
 
 #include "EnhancedInputSubsystems.h"
-#include "MiniGame/HCT26AirPlaneShooterPlayerBase.h"
 #include "Interaction/HCT26AirPlaneShooterButton.h"
 #include "MiniGame/HCT26AirPlaneShooterGameMenuBase.h"
+#include "Characters/Players/HCT26MainPlayerBase.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/GameLogs/GameLogsBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -55,6 +55,9 @@ void AHCT26AirPlaneShooterController::BeginPlay()
 	// Get the player controller
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	
+	// Get the Enhanced Input Subsystem for the local player
+	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	
 	// Bind the StartAirPlaneShooterGame function to the StartOverlap event of the button
 	Broadcaster = Cast<AHCT26AirPlaneShooterButton>(Broadcaster);
 	if (Broadcaster)
@@ -83,7 +86,7 @@ void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 												0.8f,
 												VTBlend_EaseInOut,
 												3.0f,
-												true
+												false
 												);  
 		
 		// Set HUD visibility to false
@@ -116,7 +119,6 @@ void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 		);
 		
 		// Cleanup current Mappings
-		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 		if (Subsystem) 		
 		{
 			Subsystem->ClearAllMappings();
@@ -127,12 +129,15 @@ void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 	
 		if (GameMenu)
 		{
+			// Bind the PlayGame event to the PlayAirPlaneShooterGame function
 			GameMenu->PlayGame.AddDynamic(this, &AHCT26AirPlaneShooterController::PlayAirPlaneShooterGame);
+			
+			// Bind the QuitGame event to the QuitAirPlaneShooterGame function
+			GameMenu->QuitGame.AddDynamic(this, &AHCT26AirPlaneShooterController::QuitAirPlaneShooterGame);
 		}
 		else
 		{
-			UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("CAN't Player GAME !!!!!!!!!"));
-
+			UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Can't Load Game Menu !!!!!!!!!"));
 		}
 	}
 }
@@ -145,10 +150,7 @@ void AHCT26AirPlaneShooterController::PlayAirPlaneShooterGame()
 	GetWorldTimerManager().ClearTimer(DelayHandle);
 	
 	// Remove the game menu widget from the viewport
-	if (MainMenuWidget)
-	{
-		MainMenuWidget->SetVisibility(ESlateVisibility::Hidden);
-	}
+	MainMenuWidget->SetVisibility(ESlateVisibility::Hidden);
 	
 	// Call SpawnPlayer function
 	SpawnPlayer();
@@ -178,6 +180,36 @@ void AHCT26AirPlaneShooterController::PlayAirPlaneShooterGame()
 	// {
 	// 	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Base NOTLOAD"));
 	// }
+}
+
+void AHCT26AirPlaneShooterController::QuitAirPlaneShooterGame()
+{
+	MainMenuWidget->RemoveFromParent();
+	if (DefaultPawn)
+	{
+		AHCT26MainPlayerBase* DefaultPawnCast = Cast<AHCT26MainPlayerBase>(DefaultPawn);
+		
+		// Possess the default pawn
+		PlayerController->Possess(DefaultPawnCast);
+		
+		// SetViewTargetWithBlend
+		PlayerController->SetViewTargetWithBlend(DefaultPawnCast, 
+												0.8f,
+												VTBlend_Linear,
+												0.0f,
+												false
+												); 
+	}
+	
+	// Cleanup current Mappings
+	Subsystem->ClearAllMappings();
+	
+	// Add the default mapping context back to the player controller
+	if (DefaultMappingContext)
+	{
+		UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Quit GAME !!!!!!!!!"));
+		Subsystem->AddMappingContext(DefaultMappingContext, 0);	
+	}
 }
 
 void AHCT26AirPlaneShooterController::SpawnPlayer()
@@ -218,7 +250,7 @@ void AHCT26AirPlaneShooterController::SpawnPlayer()
 		
 		PlayerSpawnPoint->SetHiddenInGame(true);
 		
-		// SetViewTargetWithBlend
+		// Keep using current view as the player pawn don't have camera
 		PlayerController->SetViewTargetWithBlend(this, 
 												0.8f,
 												VTBlend_EaseInOut,

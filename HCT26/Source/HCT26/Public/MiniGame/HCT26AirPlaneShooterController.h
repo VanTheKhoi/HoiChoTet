@@ -37,6 +37,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
 	TSubclassOf<UUserWidget> WidgetClass;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
+	TSubclassOf<APawn> DefaultPawn;
+	
+	// Input actions
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AirPlaneShooter Controller|Input")
+	class UInputMappingContext* DefaultMappingContext;
+	
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UCameraComponent> CameraComponent;
@@ -75,6 +82,9 @@ protected:
 	
 	UPROPERTY()
 	UUserWidget* MainMenuWidget;
+	
+	UPROPERTY()
+	class UEnhancedInputLocalPlayerSubsystem* Subsystem;
 
 public:
 	// Called every frame
@@ -85,6 +95,9 @@ public:
 	
 	UFUNCTION()
 	void PlayAirPlaneShooterGame();
+	
+	UFUNCTION()
+	void QuitAirPlaneShooterGame();
 	
 	// Spawn player function
 	UFUNCTION()

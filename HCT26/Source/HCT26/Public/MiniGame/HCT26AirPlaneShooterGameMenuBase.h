@@ -11,6 +11,7 @@
  */
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayGameButtonClicked);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQuitGameButtonClicked);
 
 UCLASS()
 class HCT26_API UHCT26AirPlaneShooterGameMenuBase : public UUserWidget
@@ -21,4 +22,8 @@ public:
 	// Mark as BlueprintAssignable so designers can hook it up in Blueprints
 	UPROPERTY(BlueprintCallable, Category="Events")
 	FOnPlayGameButtonClicked PlayGame;
+	
+	// Mark as BlueprintAssignable so designers can hook it up in Blueprints
+	UPROPERTY(BlueprintCallable, Category="Events")
+	FOnQuitGameButtonClicked QuitGame;
 };

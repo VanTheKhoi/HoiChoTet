@@ -70,7 +70,7 @@ void AHCT26AirPlaneShooterPlayerBase::BeginPlay()
 			if (AirPlaneShooterPlayerMappingContext)
 			{
 				// Add the mapping context with higher priority
-				Subsystem->AddMappingContext(AirPlaneShooterPlayerMappingContext, 1);
+				Subsystem->AddMappingContext(AirPlaneShooterPlayerMappingContext, 0);
 			}
 		}
 	}
