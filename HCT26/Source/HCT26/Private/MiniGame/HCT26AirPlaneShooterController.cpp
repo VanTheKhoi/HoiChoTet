@@ -5,10 +5,12 @@
 #include "EnhancedInputSubsystems.h"
 #include "Interaction/HCT26AirPlaneShooterButton.h"
 #include "MiniGame/HCT26AirPlaneShooterGameMenuBase.h"
+#include "MiniGame/HCT26AirPlaneShooterGameOverMenuBase.h"
 #include "Characters/Players/HCT26MainPlayerBase.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/GameLogs/GameLogsBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "MiniGame/HCT26AirPlaneShooterPlayerBase.h"
 #include "UI/HCT26HUD.h"
 
 
@@ -60,10 +62,18 @@ void AHCT26AirPlaneShooterController::BeginPlay()
 	
 	// Bind the StartAirPlaneShooterGame function to the StartOverlap event of the button
 	Broadcaster = Cast<AHCT26AirPlaneShooterButton>(Broadcaster);
+	
 	if (Broadcaster)
 	{
 		Broadcaster->StartGame.AddDynamic(this, &AHCT26AirPlaneShooterController::StartAirPlaneShooterGame);
 	}
+	
+	// if (DefaultPawn)
+	// {
+	// 	DefaultPawnCast = Cast<AHCT26MainPlayerBase>(DefaultPawn);
+	// }
+	
+	DefaultPawn = PlayerController->GetPawn();
 }
 
 // Called every frame
@@ -75,11 +85,10 @@ void AHCT26AirPlaneShooterController::Tick(float DeltaTime)
 
 void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 {
-	
-	if (WidgetClass)
+	if (GameMainMenu)
 	{
 		// Create widget instance
-		MainMenuWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetClass);
+		MainMenuWidget = CreateWidget<UUserWidget>(GetWorld(), GameMainMenu);
 		
 		// SetViewTargetWithBlend
 		PlayerController->SetViewTargetWithBlend(this, 
@@ -125,7 +134,7 @@ void AHCT26AirPlaneShooterController::StartAirPlaneShooterGame(bool IsStartGame)
 		}
 		
 		// Bind event 
-		GameMenu = Cast<UHCT26AirPlaneShooterGameMenuBase>(MainMenuWidget);
+		UHCT26AirPlaneShooterGameMenuBase* GameMenu = Cast<UHCT26AirPlaneShooterGameMenuBase>(MainMenuWidget);
 	
 		if (GameMenu)
 		{
@@ -169,40 +178,52 @@ void AHCT26AirPlaneShooterController::PlayAirPlaneShooterGame()
 	
 	// Hide the enemy spawn point after spawning the enemy
 	EnemySpawnPoint->SetHiddenInGame(true);
-	
-	// // bind the dead event
-	// PlayerBase = Cast<AHCT26AirPlaneShooterPlayerBase>(PlayerBase);
-	// if (PlayerBase)
-	// {
-	// 	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Base LOAD"));
-	// 	PlayerBase->PlayerDead.AddDynamic(this, &AHCT26AirPlaneShooterController::CameraShake);
-	// }else
-	// {
-	// 	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Base NOTLOAD"));
-	// }
 }
 
 void AHCT26AirPlaneShooterController::QuitAirPlaneShooterGame()
 {
-	MainMenuWidget->RemoveFromParent();
-	if (DefaultPawn)
+	if (MainMenuWidget)
 	{
-		AHCT26MainPlayerBase* DefaultPawnCast = Cast<AHCT26MainPlayerBase>(DefaultPawn);
-		
-		// Possess the default pawn
-		PlayerController->Possess(DefaultPawnCast);
-		
-		// SetViewTargetWithBlend
-		PlayerController->SetViewTargetWithBlend(DefaultPawnCast, 
-												0.8f,
-												VTBlend_Linear,
-												0.0f,
-												false
-												); 
+		MainMenuWidget->RemoveFromParent();
 	}
 	
+	if (GameOverWidget)
+	{
+		GameOverWidget->RemoveFromParent();
+	}
+
 	// Cleanup current Mappings
 	Subsystem->ClearAllMappings();
+	
+	// Destroy the player pawn and keep view target 
+	if (SpawnedPlayer)
+	{
+		SpawnedPlayer->Destroy();
+		PlayerController->SetViewTargetWithBlend(this, 
+											0.0f,
+											VTBlend_EaseInOut,
+											0.0f,
+											false
+											);	
+	}
+	
+	// SetViewTargetWithBlend to default pawn
+	PlayerController->SetViewTargetWithBlend(DefaultPawn, 
+											0.8f,
+											VTBlend_EaseInOut,
+											3.0f,
+											false
+											);
+	
+	// Posses the default pawn after delay 
+	// to ensure the view target has switched to the default pawn
+	GetWorldTimerManager().SetTimer(DelayHandle, [this]()
+	{
+		PlayerController->Possess(DefaultPawn);
+	},
+	0.9f,
+	false
+	);
 	
 	// Add the default mapping context back to the player controller
 	if (DefaultMappingContext)
@@ -210,6 +231,10 @@ void AHCT26AirPlaneShooterController::QuitAirPlaneShooterGame()
 		UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Quit GAME !!!!!!!!!"));
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);	
 	}
+	
+	// Show SpawnPoint
+	PlayerSpawnPoint->SetHiddenInGame(false);
+	EnemySpawnPoint->SetHiddenInGame(false);
 }
 
 void AHCT26AirPlaneShooterController::SpawnPlayer()
@@ -227,7 +252,7 @@ void AHCT26AirPlaneShooterController::SpawnPlayer()
 		// Set the spawn collision handling to always spawn, even if there are collisions
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		
-		APawn* SpawnedPlayer = GetWorld()->SpawnActor<APawn>(
+		SpawnedPlayer = GetWorld()->SpawnActor<APawn>(
 								PlayerSPawnClass,
 								SpawnLocation,
 								SpawnRotation,
@@ -239,8 +264,23 @@ void AHCT26AirPlaneShooterController::SpawnPlayer()
 			// Possess the spawned player pawn with the player controller
 			PlayerController->Possess(SpawnedPlayer);
 			
+			// Keep using current view as the player pawn don't have camera
+			PlayerController->SetViewTargetWithBlend(this, 
+													0.0f,
+													VTBlend_EaseInOut,
+													0.0f,
+													false
+													);
+			
 			// Print DEBUG message to LOG
 			UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Spawned Successfully"));
+			
+			// Bind the dead event
+			PlayerBaseCast = Cast<AHCT26AirPlaneShooterPlayerBase>(SpawnedPlayer);
+			
+			// Bind the PlayerDead event to the CameraShake function
+			PlayerBaseCast->PlayerDead.AddDynamic(this, &AHCT26AirPlaneShooterController::PlayerDead);
+			
 		}
 		else
 		{
@@ -249,14 +289,6 @@ void AHCT26AirPlaneShooterController::SpawnPlayer()
 		}
 		
 		PlayerSpawnPoint->SetHiddenInGame(true);
-		
-		// Keep using current view as the player pawn don't have camera
-		PlayerController->SetViewTargetWithBlend(this, 
-												0.8f,
-												VTBlend_EaseInOut,
-												3.0f,
-												true
-												);  
 		
 		// Set HUD visibility to false
 		AHCT26HUD* HCTHUD = Cast<AHCT26HUD>(PlayerController->GetHUD());
@@ -291,12 +323,14 @@ void AHCT26AirPlaneShooterController::SpawnEnemy()
 		SpawnLocation.Z 
 	);
 				
-	GetWorld()->SpawnActor<APawn>(
+	APawn* EnemySpawned = GetWorld()->SpawnActor<APawn>(
 						EnemySpawnClass,
 						RandomLocation,
 						SpawnRotation,
 						SpawnParams
 						);
+	
+	Enemies.Add(EnemySpawned);
 }
 
 void AHCT26AirPlaneShooterController::SpawnNextEnemy()
@@ -313,10 +347,49 @@ void AHCT26AirPlaneShooterController::SpawnNextEnemy()
 	}
 }
 
-void AHCT26AirPlaneShooterController::CameraShake(bool IsPlayerDead)
+void AHCT26AirPlaneShooterController::PlayerDead(bool IsPlayerDead)
 {
-	// Check if the player is dead and trigger camera shake
 	UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Player Dead !!!"));
-	bIsCameraShaking = true;
+	
+	// Show Game Over Menu
+	if (GameOverMenu)
+	{
+		// Create widget instance
+		GameOverWidget = CreateWidget<UUserWidget>(GetWorld(), GameOverMenu);
+		if (GameOverWidget)
+		{
+			GameOverWidget->AddToViewport();
+			
+			// Show mouse cursor and enable UI interaction
+			PlayerController->bShowMouseCursor = true;
+			PlayerController->bEnableClickEvents = true;
+			PlayerController->bEnableMouseOverEvents = true;
+			
+			FInputModeGameAndUI InputMode;
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			InputMode.SetHideCursorDuringCapture(false);
+			PlayerController->SetInputMode(InputMode);
+			
+			// Destroy all enemies
+			for (APawn* Enemy : Enemies)
+			{
+				// Check if the enemy is valid before trying to destroy it
+				if (IsValid(Enemy))
+				{
+					Enemy->Destroy();
+				}
+			}
+			
+			// Bind the ExitGameButtonClick event to the QuitAirPlaneShooterGame function
+			UHCT26AirPlaneShooterGameOverMenuBase* GameOverMenuBase = Cast<UHCT26AirPlaneShooterGameOverMenuBase>(GameOverWidget);
+			if (GameOverMenuBase)
+			{
+				GameOverMenuBase->OnExitGameButtonClick.AddDynamic(this, &AHCT26AirPlaneShooterController::QuitAirPlaneShooterGame);
+			}
+		}
+		else
+		{
+			UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("Can't Load Game Over Menu !!!!!!!!!"));
+		}
+	}
 }
-

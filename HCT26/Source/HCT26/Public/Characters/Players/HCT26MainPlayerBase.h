@@ -17,6 +17,14 @@ class HCT26_API AHCT26MainPlayerBase : public APawn
 public:
 	// Sets default values for this pawn's properties
 	AHCT26MainPlayerBase();
+	
+	// // Camera boom to position the camera behind the pawn
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
+	// class USpringArmComponent* CameraBoom;
+	//
+	// // Actual camera component
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
+	// class UCameraComponent* PawnCamera;
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,4 +45,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	// // Override CalcCamera so PlayerController knows to use PawnCamera
+	// virtual void CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult) override;
 };

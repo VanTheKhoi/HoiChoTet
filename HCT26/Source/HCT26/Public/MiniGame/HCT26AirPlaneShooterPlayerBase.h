@@ -22,7 +22,7 @@ public:
 	// Sets default values for this pawn's properties
 	AHCT26AirPlaneShooterPlayerBase();
 	
-	UPROPERTY(BlueprintAssignable, Category=HoiChoTet)
+	UPROPERTY(BlueprintCallable, Category=HoiChoTet)
 	FSignaturePlayerDead PlayerDead;
 
 protected:

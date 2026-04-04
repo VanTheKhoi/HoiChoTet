@@ -3,6 +3,9 @@
 
 #include "Characters/Players/HCT26MainPlayerBase.h"
 
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+
 
 // Sets default values
 AHCT26MainPlayerBase::AHCT26MainPlayerBase()
@@ -21,6 +24,17 @@ AHCT26MainPlayerBase::AHCT26MainPlayerBase()
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 	CollisionComponent->SetGenerateOverlapEvents(true);
+	
+	// // Spring arm setup
+	// CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	// CameraBoom->SetupAttachment(CollisionComponent);
+	// CameraBoom->TargetArmLength = 300.0f;
+	// CameraBoom->bUsePawnControlRotation = true;
+	//
+	// // Camera setup
+	// PawnCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PawnCamera"));
+	// PawnCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	// PawnCamera->bUsePawnControlRotation = false;
 	
 	// FloatingPawnMovement automatically handles ConsumeMovementInputVector
 	MovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
@@ -45,4 +59,14 @@ void AHCT26MainPlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
+
+// void AHCT26MainPlayerBase::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult)
+// {
+// 	Super::CalcCamera(DeltaTime, OutResult);
+//
+// 	if (PawnCamera)
+// 	{
+// 		PawnCamera->GetCameraView(DeltaTime, OutResult);
+// 	}
+// }
 

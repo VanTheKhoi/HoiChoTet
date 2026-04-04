@@ -70,7 +70,7 @@ void AHCT26AirPlaneShooterPlayerBase::BeginPlay()
 			if (AirPlaneShooterPlayerMappingContext)
 			{
 				// Add the mapping context with higher priority
-				Subsystem->AddMappingContext(AirPlaneShooterPlayerMappingContext, 0);
+				Subsystem->AddMappingContext(AirPlaneShooterPlayerMappingContext, 2);
 			}
 		}
 	}
@@ -122,7 +122,6 @@ void AHCT26AirPlaneShooterPlayerBase::Tick(float DeltaTime)
 			PlayerDead.Broadcast(true);
 		}
 		bSpawnExplosionEffect = true;
-		// Destroy(true);
 	}
 	
 	// Check if player was hit and apply damage

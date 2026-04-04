@@ -29,16 +29,16 @@ protected:
 	TSubclassOf<APawn> PlayerSPawnClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Spawn")
-	TSubclassOf<APawn> EnemySpawnClass;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
-	bool bIsCameraShaking;
+	TSubclassOf<APawn> EnemySpawnClass;	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
-	TSubclassOf<UUserWidget> WidgetClass;
+	TSubclassOf<UUserWidget> GameMainMenu;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
-	TSubclassOf<APawn> DefaultPawn;
+	TSubclassOf<UUserWidget> GameOverMenu;
+	
+	UPROPERTY()
+	APawn* DefaultPawn;
 	
 	// Input actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AirPlaneShooter Controller|Input")
@@ -57,16 +57,16 @@ protected:
 	TObjectPtr<UStaticMeshComponent> EnemySpawnPoint;
 	
 	UPROPERTY()
-	class AHCT26AirPlaneShooterPlayerBase* PlayerBase;
-	
-	UPROPERTY()
 	class AHCT26AirPlaneShooterButton* Broadcaster;
 	
 	UPROPERTY()
-	class UHCT26AirPlaneShooterGameMenuBase* GameMenu;
+	class AHCT26MainPlayerBase* DefaultPawnCast;
 	
 	UPROPERTY()
 	APlayerController* PlayerController;
+	
+	UPROPERTY()
+	class AHCT26AirPlaneShooterPlayerBase* PlayerBaseCast;
 	
 	UPROPERTY()
 	FTimerHandle SpawnTimerHandle;
@@ -84,6 +84,15 @@ protected:
 	UUserWidget* MainMenuWidget;
 	
 	UPROPERTY()
+	UUserWidget* GameOverWidget;
+	
+	UPROPERTY()
+	TArray<APawn*> Enemies;
+	
+	UPROPERTY()
+	APawn* SpawnedPlayer;
+	
+	UPROPERTY()
 	class UEnhancedInputLocalPlayerSubsystem* Subsystem;
 
 public:
@@ -99,18 +108,15 @@ public:
 	UFUNCTION()
 	void QuitAirPlaneShooterGame();
 	
-	// Spawn player function
 	UFUNCTION()
 	void SpawnPlayer();
 	
-	// Spawn enemy function
 	UFUNCTION()
 	void SpawnEnemy();
 	
 	UFUNCTION()
 	void SpawnNextEnemy();
 	
-	// Camera shake function
 	UFUNCTION()
-	void CameraShake(bool IsPlayerDead);
+	void PlayerDead(bool IsPlayerDead);
 };

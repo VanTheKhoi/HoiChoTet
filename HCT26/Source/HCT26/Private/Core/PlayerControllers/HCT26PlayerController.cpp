@@ -25,7 +25,7 @@ void AHCT26PlayerController::BeginPlay()
 		if (DefaultMappingContext)
 		{
 			// Add the mapping context with priority 0 (default)
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			Subsystem->AddMappingContext(DefaultMappingContext, 1);
 		}
 	}
 }
