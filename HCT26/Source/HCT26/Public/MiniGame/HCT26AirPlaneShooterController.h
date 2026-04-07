@@ -37,6 +37,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
 	TSubclassOf<UUserWidget> GameOverMenu;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AirPlaneShooter Controller|Gameplay")
+	TSubclassOf<UUserWidget> GameWinMenu;
+	
 	UPROPERTY()
 	APawn* DefaultPawn;
 	
@@ -87,6 +90,9 @@ protected:
 	UUserWidget* GameOverWidget;
 	
 	UPROPERTY()
+	UUserWidget* WinMenuWidget;
+	
+	UPROPERTY()
 	TArray<APawn*> Enemies;
 	
 	UPROPERTY()
@@ -94,6 +100,10 @@ protected:
 	
 	UPROPERTY()
 	class UEnhancedInputLocalPlayerSubsystem* Subsystem;
+	
+	UPROPERTY()
+	bool bIsWin;
+
 
 public:
 	// Called every frame

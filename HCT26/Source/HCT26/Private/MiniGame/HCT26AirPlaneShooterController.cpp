@@ -6,6 +6,7 @@
 #include "Interaction/HCT26AirPlaneShooterButton.h"
 #include "MiniGame/HCT26AirPlaneShooterGameMenuBase.h"
 #include "MiniGame/HCT26AirPlaneShooterGameOverMenuBase.h"
+#include "MiniGame/HCT26AirPlaneShooterGameWinMenuBase.h"
 #include "Characters/Players/HCT26MainPlayerBase.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/GameLogs/GameLogsBase.h"
@@ -19,6 +20,7 @@ AHCT26AirPlaneShooterController::AHCT26AirPlaneShooterController()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bIsWin = false;
 	
 	// Create root scene component
 	SceneRoot = CreateDefaultSubobject<USceneComponent>("SceneRoot");
@@ -79,6 +81,49 @@ void AHCT26AirPlaneShooterController::BeginPlay()
 void AHCT26AirPlaneShooterController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	// Check if Enemies is empty, if not empty, loop through the array and check if any enemy is valid
+	if (Enemies.Num() > 0)
+	{
+		int32 tempCount = EnemySpawnCount;
+		
+		for (APawn* Enemy : Enemies)
+		{
+			if (!IsValid(Enemy))
+			{
+				tempCount--;
+			}
+		}
+		
+		if (tempCount==0 && !bIsWin)
+		{
+			UE_LOG(HCT26GameLogs::LogHCT, Log, TEXT("YOU WIN"));
+			bIsWin = true;
+			
+			// Show Game Win Menu
+			if (GameWinMenu)
+			{
+				WinMenuWidget = CreateWidget<UUserWidget>(GetWorld(), GameWinMenu);
+				WinMenuWidget->AddToViewport();
+				
+				// Show mouse cursor and enable UI interaction
+				PlayerController->bShowMouseCursor = true;
+				PlayerController->bEnableClickEvents = true;
+				PlayerController->bEnableMouseOverEvents = true;
+				
+				FInputModeGameAndUI InputMode;
+				InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+				InputMode.SetHideCursorDuringCapture(false);
+				PlayerController->SetInputMode(InputMode);
+				
+				// Bind event 
+				UHCT26AirPlaneShooterGameWinMenuBase* GameWinMenuCast = Cast<UHCT26AirPlaneShooterGameWinMenuBase>(WinMenuWidget);
+				
+				// Bind the QuitGame event to the QuitAirPlaneShooterGame function
+				GameWinMenuCast->OnExitGameWinButtonClick.AddDynamic(this, &AHCT26AirPlaneShooterController::QuitAirPlaneShooterGame);
+			}
+		}
+	}
 
 }
 
@@ -189,6 +234,11 @@ void AHCT26AirPlaneShooterController::QuitAirPlaneShooterGame()
 	if (GameOverWidget)
 	{
 		GameOverWidget->RemoveFromParent();
+	}
+	
+	if (WinMenuWidget)
+	{
+		WinMenuWidget->RemoveFromParent();
 	}
 
 	// Cleanup current Mappings
