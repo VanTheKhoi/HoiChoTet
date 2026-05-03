@@ -21,6 +21,7 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
+		
 	],
 	"ExplicitlyLoaded": true,
 	"BuiltInInitialFeatureState": "Active"
