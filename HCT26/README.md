@@ -10,8 +10,8 @@ A multi-featured Unreal Engine 5 game project built with C++, featuring an open-
 
 - An open exploration world with interactive NPCs and environmental triggers
 - An arcade airplane shooter mini-game accessible from the main world
-- A visual effects system using Niagara particles (Tesla Tower, button triggers)
 - A modular, tag-based pawn-possession system
+- Animation learning sandbox using the Animal Variety Pack
 
 ---
 
@@ -31,9 +31,13 @@ A multi-featured Unreal Engine 5 game project built with C++, featuring an open-
 - Wave-based enemy spawning managed by `AHCT26AirPlaneShooterController`
 - Full UI flow: Main Menu → Gameplay → Game Over / Win screen
 
-## Visual Effects
-- `AHCT26TeslaTower` — Niagara-powered area-of-effect tower with configurable shoot and area effects
-- `AHCT26Button1` / `Button2` — Overlap-activated Niagara FX on interactive props
+## Animal Variety Pack (`/Game/AnimalVarietyPack`)
+
+A third-party asset pack used as a hands-on sandbox for learning Unreal Engine animation fundamentals.
+
+- Explore skeletal meshes, animation sequences, and blend spaces provided by the pack
+- Practice wiring Animation Blueprints (state machines, transitions, blending)
+- Used for experimentation only — not part of core gameplay
 
 ## Vehicle Configurator
 
