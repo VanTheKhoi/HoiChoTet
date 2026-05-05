@@ -14,12 +14,14 @@ class HCT26_API UMyGameFeatureAction : public UGameFeatureAction
 {
 	GENERATED_BODY()
 	
-protected:
+public:
+	virtual void OnGameFeatureActivating(FGameFeatureActivatingContext& Context) override;
+	virtual void OnGameFeatureDeactivating(FGameFeatureDeactivatingContext& Context) override;
 	
+protected:
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UUserWidget> WidgetClass;
 	
 	UPROPERTY(EditAnywhere, Category="UI")
 	int32 ZOrder = 0;
-	
 };
