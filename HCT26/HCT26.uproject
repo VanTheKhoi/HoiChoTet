@@ -33,6 +33,10 @@
 		{
 			"Name": "VehicleLiverySwapper",
 			"Enabled": true
+		},
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
 		}
 	]
 }
